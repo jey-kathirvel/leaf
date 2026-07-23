@@ -1,0 +1,307 @@
+{% extends "layouts/store_base.html" %}
+
+{% block title %}
+Leaf Online Store
+{% endblock %}
+
+{% block meta_description %}
+Shop quality products securely from Leaf Online Store.
+{% endblock %}
+
+{% block content %}
+
+<section class="hero-section">
+    <div class="container hero-grid">
+
+        <div class="hero-content">
+            <span class="eyebrow">
+                Fresh arrivals are here
+            </span>
+
+            <h1>
+                Discover products made for everyday living.
+            </h1>
+
+            <p>
+                Shop trusted products through a clean,
+                secure and simple online experience.
+            </p>
+
+            <div class="hero-actions">
+                <a
+                    href="/shop"
+                    class="button button-primary"
+                >
+                    Shop now
+                </a>
+
+                <a
+                    href="/categories"
+                    class="button button-secondary"
+                >
+                    Browse categories
+                </a>
+            </div>
+
+            <div class="hero-trust">
+                <span>Secure checkout</span>
+                <span>Quality products</span>
+                <span>Fast support</span>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="hero-card hero-card-main">
+                <span class="hero-card-label">
+                    Featured collection
+                </span>
+
+                <div class="hero-leaf-symbol">
+                    L
+                </div>
+
+                <h2>
+                    Simple choices.
+                    Better shopping.
+                </h2>
+            </div>
+
+            <div class="floating-card floating-card-one">
+                New arrivals
+            </div>
+
+            <div class="floating-card floating-card-two">
+                Secure payment
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="benefits-section">
+    <div class="container benefits-grid">
+
+        <article class="benefit-card">
+            <div class="benefit-icon">01</div>
+
+            <div>
+                <h3>Curated products</h3>
+                <p>
+                    Carefully organised products for easier shopping.
+                </p>
+            </div>
+        </article>
+
+        <article class="benefit-card">
+            <div class="benefit-icon">02</div>
+
+            <div>
+                <h3>Secure checkout</h3>
+                <p>
+                    Protected checkout and reliable order processing.
+                </p>
+            </div>
+        </article>
+
+        <article class="benefit-card">
+            <div class="benefit-icon">03</div>
+
+            <div>
+                <h3>Order assistance</h3>
+                <p>
+                    Clear communication throughout your order journey.
+                </p>
+            </div>
+        </article>
+
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">
+                    Explore
+                </span>
+
+                <h2>
+                    Shop by category
+                </h2>
+            </div>
+
+            <a
+                href="/categories"
+                class="text-link"
+            >
+                View all categories
+            </a>
+        </div>
+
+        <div class="category-grid">
+
+            <a
+                href="/shop?category=essentials"
+                class="category-card category-card-green"
+            >
+                <span>Daily Essentials</span>
+                <strong>Shop collection</strong>
+            </a>
+
+            <a
+                href="/shop?category=home"
+                class="category-card category-card-cream"
+            >
+                <span>Home & Living</span>
+                <strong>Shop collection</strong>
+            </a>
+
+            <a
+                href="/shop?category=lifestyle"
+                class="category-card category-card-blue"
+            >
+                <span>Lifestyle</span>
+                <strong>Shop collection</strong>
+            </a>
+
+            <a
+                href="/shop?category=featured"
+                class="category-card category-card-pink"
+            >
+                <span>Featured Picks</span>
+                <strong>Shop collection</strong>
+            </a>
+
+        </div>
+
+    </div>
+</section>
+
+<section class="section section-muted">
+    <div class="container">
+
+        <div class="section-heading">
+            <div>
+                <span class="eyebrow">
+                    Popular now
+                </span>
+
+                <h2>
+                    Featured products
+                </h2>
+            </div>
+
+            <a
+                href="/shop"
+                class="text-link"
+            >
+                View all products
+            </a>
+        </div>
+
+        <div class="product-grid">
+
+            {% for product in featured_products %}
+
+            <article class="product-card">
+
+                <a
+                    href="/product/{{ product.slug }}"
+                    class="product-image"
+                >
+                    <span class="product-placeholder">
+                        {{ product.name[0] }}
+                    </span>
+
+                    {% if product.badge %}
+                    <span class="product-badge">
+                        {{ product.badge }}
+                    </span>
+                    {% endif %}
+                </a>
+
+                <div class="product-content">
+                    <span class="product-category">
+                        {{ product.category }}
+                    </span>
+
+                    <h3>
+                        <a href="/product/{{ product.slug }}">
+                            {{ product.name }}
+                        </a>
+                    </h3>
+
+                    <div class="product-footer">
+                        <strong>
+                            ₹{{ "%.2f"|format(product.price) }}
+                        </strong>
+
+                        <button
+                            type="button"
+                            class="add-cart-button"
+                            data-product-id="{{ product.id }}"
+                        >
+                            Add
+                        </button>
+                    </div>
+                </div>
+
+            </article>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+</section>
+
+<section class="newsletter-section">
+    <div class="container newsletter-card">
+
+        <div>
+            <span class="eyebrow">
+                Stay updated
+            </span>
+
+            <h2>
+                Get product updates and special offers.
+            </h2>
+
+            <p>
+                Subscribe for new arrivals and Leaf store announcements.
+            </p>
+        </div>
+
+        <form
+            class="newsletter-form"
+            action="/newsletter"
+            method="post"
+        >
+            <label
+                for="newsletterEmail"
+                class="sr-only"
+            >
+                Email address
+            </label>
+
+            <input
+                id="newsletterEmail"
+                name="email"
+                type="email"
+                placeholder="Enter your email"
+                required
+            >
+
+            <button
+                type="submit"
+                class="button button-primary"
+            >
+                Subscribe
+            </button>
+        </form>
+
+    </div>
+</section>
+
+{% endblock %}
