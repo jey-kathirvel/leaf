@@ -1,14 +1,8 @@
-<article class="product-card">
-    <a href="/product/{{ product.slug }}" class="product-image">
-        {% if product.primary_image %}<img src="{{ product.primary_image.image_path }}" alt="{{ product.primary_image.alt_text or product.product_name }}" loading="lazy">{% else %}<span class="product-placeholder">{{ product.product_name[0] }}</span>{% endif %}
-        {% if product.is_featured %}<span class="product-badge">Featured</span>{% elif product.is_new_arrival %}<span class="product-badge">New</span>{% endif %}
-    </a>
-    <div class="product-content">
-        <span class="product-category">{{ product.category.name if product.category else "Catalogue" }}</span>
-        <h3><a href="/product/{{ product.slug }}">{{ product.product_name }}</a></h3>
-        <div class="product-footer">
-            <div class="product-price"><strong>₹{{ "%.2f"|format(product.selling_price|float) }}</strong>{% if product.mrp and product.mrp > product.selling_price %}<del>₹{{ "%.2f"|format(product.mrp|float) }}</del>{% endif %}</div>
-            <button type="button" class="add-cart-button" data-product-id="{{ product.id }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Add</button>
-        </div>
+<article class="product-card fashion-card">
+    <div class="fashion-card-media">
+        <a href="/product/{{ product.slug }}" class="product-image">{% if product.primary_image %}<img src="{{ product.primary_image.image_path }}" alt="{{ product.primary_image.alt_text or product.product_name }}" loading="lazy">{% else %}<span class="product-placeholder">{{ product.product_name[0] }}</span>{% endif %}</a>
+        {% if product.is_new_arrival %}<span class="product-badge">New in</span>{% elif product.is_best_seller %}<span class="product-badge">Best seller</span>{% elif product.is_featured %}<span class="product-badge">Featured</span>{% endif %}
+        <button type="button" class="add-cart-button fashion-quick-add" data-product-id="{{ product.id }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg> Quick add</button>
     </div>
+    <div class="product-content"><span class="product-category">{{ product.category.name if product.category else "Leaf collection" }}</span><h3><a href="/product/{{ product.slug }}">{{ product.product_name }}</a></h3><div class="fashion-card-footer"><div class="product-price"><strong>₹{{ "%.2f"|format(product.selling_price|float) }}</strong>{% if product.mrp and product.mrp > product.selling_price %}<del>₹{{ "%.2f"|format(product.mrp|float) }}</del>{% endif %}</div><a href="/product/{{ product.slug }}">View details →</a></div></div>
 </article>

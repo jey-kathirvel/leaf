@@ -1,0 +1,864 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Create Product | Leaf Admin{% endblock %}
+
+{% block content %}
+{% set data = form_data or {} %}
+
+<div class="container-fluid py-4">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <div class="text-uppercase text-muted small fw-semibold mb-1">
+                Catalogue Management
+            </div>
+
+            <h1 class="h3 fw-bold mb-1">
+                Create Product
+            </h1>
+
+            <p class="text-muted mb-0">
+                Add a new product to the Leaf online store catalogue.
+            </p>
+        </div>
+
+        <a
+            href="/admin/products"
+            class="btn btn-outline-secondary"
+        >
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Products
+        </a>
+    </div>
+
+    {% if errors %}
+        <div class="alert alert-danger shadow-sm" role="alert">
+            <div class="d-flex gap-3">
+                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+
+                <div>
+                    <div class="fw-bold mb-1">
+                        Please correct the following errors
+                    </div>
+
+                    <ul class="mb-0 ps-3">
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <form
+        method="post"
+        action="/admin/products/create"
+        id="productForm"
+        novalidate
+    >
+        <div class="row g-4">
+            <div class="col-12 col-xl-8">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 px-4 pt-4 pb-2">
+                        <h2 class="h5 fw-bold mb-1">
+                            General Information
+                        </h2>
+
+                        <p class="text-muted small mb-0">
+                            Enter the product identity and catalogue details.
+                        </p>
+                    </div>
+
+                    <div class="card-body px-4 pb-4">
+                        <div class="row g-3">
+                            <div class="col-12 col-lg-8">
+                                <label
+                                    for="product_name"
+                                    class="form-label fw-semibold"
+                                >
+                                    Product Name
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="product_name"
+                                    name="product_name"
+                                    class="form-control"
+                                    value="{{ data.get('product_name', '') }}"
+                                    maxlength="255"
+                                    autocomplete="off"
+                                    required
+                                >
+                            </div>
+
+                            <div class="col-12 col-lg-4">
+                                <label
+                                    for="short_name"
+                                    class="form-label fw-semibold"
+                                >
+                                    Short Name
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="short_name"
+                                    name="short_name"
+                                    class="form-control"
+                                    value="{{ data.get('short_name', '') }}"
+                                    maxlength="100"
+                                    autocomplete="off"
+                                >
+                            </div>
+
+                            <div class="col-12 col-lg-6">
+                                <label
+                                    for="slug"
+                                    class="form-label fw-semibold"
+                                >
+                                    Product Slug
+                                </label>
+
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        /
+                                    </span>
+
+                                    <input
+                                        type="text"
+                                        id="slug"
+                                        name="slug"
+                                        class="form-control"
+                                        value="{{ data.get('slug', '') }}"
+                                        maxlength="255"
+                                        autocomplete="off"
+                                        placeholder="Auto-generated from product name"
+                                    >
+                                </div>
+
+                                <div class="form-text">
+                                    Leave blank to generate automatically.
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-lg-3">
+                                <label
+                                    for="sku"
+                                    class="form-label fw-semibold"
+                                >
+                                    SKU
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="sku"
+                                    name="sku"
+                                    class="form-control text-uppercase"
+                                    value="{{ data.get('sku', '') }}"
+                                    maxlength="100"
+                                    autocomplete="off"
+                                    placeholder="Auto-generated"
+                                >
+                            </div>
+
+                            <div class="col-12 col-lg-3">
+                                <label
+                                    for="barcode"
+                                    class="form-label fw-semibold"
+                                >
+                                    Barcode
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="barcode"
+                                    name="barcode"
+                                    class="form-control"
+                                    value="{{ data.get('barcode', '') }}"
+                                    maxlength="100"
+                                    autocomplete="off"
+                                    inputmode="numeric"
+                                    placeholder="Auto-generated"
+                                >
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label
+                                    for="category_id"
+                                    class="form-label fw-semibold"
+                                >
+                                    Category
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <select
+                                    id="category_id"
+                                    name="category_id"
+                                    class="form-select"
+                                    required
+                                >
+                                    <option value="">
+                                        Select Category
+                                    </option>
+
+                                    {% for category in categories %}
+                                        {% set category_label =
+                                            category.category_name
+                                            if category.category_name is defined
+                                            else category.name
+                                        %}
+
+                                        <option
+                                            value="{{ category.id }}"
+                                            {% if data.get('category_id')|string == category.id|string %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ category_label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label
+                                    for="brand_id"
+                                    class="form-label fw-semibold"
+                                >
+                                    Brand
+                                </label>
+
+                                <select
+                                    id="brand_id"
+                                    name="brand_id"
+                                    class="form-select"
+                                >
+                                    <option value="">
+                                        No Brand
+                                    </option>
+
+                                    {% for brand in brands %}
+                                        {% set brand_label =
+                                            brand.brand_name
+                                            if brand.brand_name is defined
+                                            else brand.name
+                                        %}
+
+                                        <option
+                                            value="{{ brand.id }}"
+                                            {% if data.get('brand_id')|string == brand.id|string %}
+                                                selected
+                                            {% endif %}
+                                        >
+                                            {{ brand_label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <label
+                                    for="short_description"
+                                    class="form-label fw-semibold"
+                                >
+                                    Short Description
+                                </label>
+
+                                <textarea
+                                    id="short_description"
+                                    name="short_description"
+                                    class="form-control"
+                                    rows="3"
+                                    maxlength="1000"
+                                >{{ data.get('short_description', '') }}</textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label
+                                    for="long_description"
+                                    class="form-label fw-semibold"
+                                >
+                                    Full Description
+                                </label>
+
+                                <textarea
+                                    id="long_description"
+                                    name="long_description"
+                                    class="form-control"
+                                    rows="8"
+                                >{{ data.get('long_description', '') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 px-4 pt-4 pb-2">
+                        <h2 class="h5 fw-bold mb-1">
+                            Pricing and Tax
+                        </h2>
+
+                        <p class="text-muted small mb-0">
+                            Configure selling price, MRP, purchase cost and GST.
+                        </p>
+                    </div>
+
+                    <div class="card-body px-4 pb-4">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label
+                                    for="mrp"
+                                    class="form-label fw-semibold"
+                                >
+                                    MRP
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        ₹
+                                    </span>
+
+                                    <input
+                                        type="number"
+                                        id="mrp"
+                                        name="mrp"
+                                        class="form-control"
+                                        value="{{ data.get('mrp', '0.00') }}"
+                                        min="0"
+                                        step="0.01"
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label
+                                    for="selling_price"
+                                    class="form-label fw-semibold"
+                                >
+                                    Selling Price
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        ₹
+                                    </span>
+
+                                    <input
+                                        type="number"
+                                        id="selling_price"
+                                        name="selling_price"
+                                        class="form-control"
+                                        value="{{ data.get('selling_price', '0.00') }}"
+                                        min="0"
+                                        step="0.01"
+                                        required
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label
+                                    for="cost_price"
+                                    class="form-label fw-semibold"
+                                >
+                                    Cost Price
+                                </label>
+
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        ₹
+                                    </span>
+
+                                    <input
+                                        type="number"
+                                        id="cost_price"
+                                        name="cost_price"
+                                        class="form-control"
+                                        value="{{ data.get('cost_price', '0.00') }}"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-lg-3">
+                                <label
+                                    for="gst_percentage"
+                                    class="form-label fw-semibold"
+                                >
+                                    GST Percentage
+                                </label>
+
+                                <div class="input-group">
+                                    <input
+                                        type="number"
+                                        id="gst_percentage"
+                                        name="gst_percentage"
+                                        class="form-control"
+                                        value="{{ data.get('gst_percentage', '0') }}"
+                                        min="0"
+                                        max="100"
+                                        step="0.01"
+                                    >
+
+                                    <span class="input-group-text">
+                                        %
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label
+                                    for="hsn_code"
+                                    class="form-label fw-semibold"
+                                >
+                                    HSN / SAC Code
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="hsn_code"
+                                    name="hsn_code"
+                                    class="form-control"
+                                    value="{{ data.get('hsn_code', '') }}"
+                                    maxlength="30"
+                                    autocomplete="off"
+                                >
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold">
+                                    Discount Preview
+                                </label>
+
+                                <div class="form-control bg-light" id="discountPreview">
+                                    ₹0.00
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 px-4 pt-4 pb-2">
+                        <h2 class="h5 fw-bold mb-1">
+                            Inventory
+                        </h2>
+
+                        <p class="text-muted small mb-0">
+                            Configure opening stock and stock-level alerts.
+                        </p>
+                    </div>
+
+                    <div class="card-body px-4 pb-4">
+                        <div class="form-check form-switch mb-4">
+                            <input
+                                type="checkbox"
+                                id="track_inventory"
+                                name="track_inventory"
+                                class="form-check-input"
+                                value="1"
+                                {% if data.get('track_inventory', '1') in ['1', 1, true, 'true', 'on'] %}
+                                    checked
+                                {% endif %}
+                            >
+
+                            <label
+                                for="track_inventory"
+                                class="form-check-label fw-semibold"
+                            >
+                                Track inventory for this product
+                            </label>
+                        </div>
+
+                        <div class="row g-3" id="inventoryFields">
+                            <div class="col-12 col-md-4">
+                                <label
+                                    for="opening_stock"
+                                    class="form-label fw-semibold"
+                                >
+                                    Opening Stock
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="opening_stock"
+                                    name="opening_stock"
+                                    class="form-control"
+                                    value="{{ data.get('opening_stock', '0') }}"
+                                    min="0"
+                                    step="1"
+                                >
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label
+                                    for="min_stock"
+                                    class="form-label fw-semibold"
+                                >
+                                    Minimum Stock
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="min_stock"
+                                    name="min_stock"
+                                    class="form-control"
+                                    value="{{ data.get('min_stock', '0') }}"
+                                    min="0"
+                                    step="1"
+                                >
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <label
+                                    for="max_stock"
+                                    class="form-label fw-semibold"
+                                >
+                                    Maximum Stock
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="max_stock"
+                                    name="max_stock"
+                                    class="form-control"
+                                    value="{{ data.get('max_stock', '0') }}"
+                                    min="0"
+                                    step="1"
+                                >
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 px-4 pt-4 pb-2">
+                        <h2 class="h5 fw-bold mb-1">
+                            Search Engine Optimisation
+                        </h2>
+
+                        <p class="text-muted small mb-0">
+                            Improve product visibility in search engines.
+                        </p>
+                    </div>
+
+                    <div class="card-body px-4 pb-4">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label
+                                    for="meta_title"
+                                    class="form-label fw-semibold"
+                                >
+                                    Meta Title
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="meta_title"
+                                    name="meta_title"
+                                    class="form-control"
+                                    value="{{ data.get('meta_title', '') }}"
+                                    maxlength="255"
+                                >
+                            </div>
+
+                            <div class="col-12">
+                                <label
+                                    for="meta_description"
+                                    class="form-label fw-semibold"
+                                >
+                                    Meta Description
+                                </label>
+
+                                <textarea
+                                    id="meta_description"
+                                    name="meta_description"
+                                    class="form-control"
+                                    rows="4"
+                                >{{ data.get('meta_description', '') }}</textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <label
+                                    for="meta_keywords"
+                                    class="form-label fw-semibold"
+                                >
+                                    Meta Keywords
+                                </label>
+
+                                <textarea
+                                    id="meta_keywords"
+                                    name="meta_keywords"
+                                    class="form-control"
+                                    rows="2"
+                                    placeholder="organic, tea, healthy, premium"
+                                >{{ data.get('meta_keywords', '') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-4">
+                <div class="card border-0 shadow-sm mb-4 position-sticky" style="top: 1rem;">
+                    <div class="card-header bg-white border-0 px-4 pt-4 pb-2">
+                        <h2 class="h5 fw-bold mb-1">
+                            Publishing
+                        </h2>
+
+                        <p class="text-muted small mb-0">
+                            Control product visibility and storefront labels.
+                        </p>
+                    </div>
+
+                    <div class="card-body px-4 pb-4">
+                        <div class="d-grid gap-3">
+                            <div class="form-check form-switch border rounded-3 p-3 ps-5">
+                                <input
+                                    type="checkbox"
+                                    id="is_active"
+                                    name="is_active"
+                                    class="form-check-input"
+                                    value="1"
+                                    {% if data.get('is_active', '1') in ['1', 1, true, 'true', 'on'] %}
+                                        checked
+                                    {% endif %}
+                                >
+
+                                <label
+                                    for="is_active"
+                                    class="form-check-label fw-semibold"
+                                >
+                                    Active Product
+                                </label>
+
+                                <div class="small text-muted mt-1">
+                                    Display this product in the active catalogue.
+                                </div>
+                            </div>
+
+                            <div class="form-check form-switch border rounded-3 p-3 ps-5">
+                                <input
+                                    type="checkbox"
+                                    id="is_featured"
+                                    name="is_featured"
+                                    class="form-check-input"
+                                    value="1"
+                                    {% if data.get('is_featured') in ['1', 1, true, 'true', 'on'] %}
+                                        checked
+                                    {% endif %}
+                                >
+
+                                <label
+                                    for="is_featured"
+                                    class="form-check-label fw-semibold"
+                                >
+                                    Featured
+                                </label>
+
+                                <div class="small text-muted mt-1">
+                                    Highlight in featured product sections.
+                                </div>
+                            </div>
+
+                            <div class="form-check form-switch border rounded-3 p-3 ps-5">
+                                <input
+                                    type="checkbox"
+                                    id="is_new_arrival"
+                                    name="is_new_arrival"
+                                    class="form-check-input"
+                                    value="1"
+                                    {% if data.get('is_new_arrival') in ['1', 1, true, 'true', 'on'] %}
+                                        checked
+                                    {% endif %}
+                                >
+
+                                <label
+                                    for="is_new_arrival"
+                                    class="form-check-label fw-semibold"
+                                >
+                                    New Arrival
+                                </label>
+
+                                <div class="small text-muted mt-1">
+                                    Display a new-arrival badge.
+                                </div>
+                            </div>
+
+                            <div class="form-check form-switch border rounded-3 p-3 ps-5">
+                                <input
+                                    type="checkbox"
+                                    id="is_best_seller"
+                                    name="is_best_seller"
+                                    class="form-check-input"
+                                    value="1"
+                                    {% if data.get('is_best_seller') in ['1', 1, true, 'true', 'on'] %}
+                                        checked
+                                    {% endif %}
+                                >
+
+                                <label
+                                    for="is_best_seller"
+                                    class="form-check-label fw-semibold"
+                                >
+                                    Best Seller
+                                </label>
+
+                                <div class="small text-muted mt-1">
+                                    Display a best-seller badge.
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-grid gap-2">
+                            <button
+                                type="submit"
+                                class="btn btn-success btn-lg"
+                                id="saveProductButton"
+                            >
+                                <i class="bi bi-check-lg me-1"></i>
+                                Create Product
+                            </button>
+
+                            <a
+                                href="/admin/products"
+                                class="btn btn-outline-secondary"
+                            >
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("productForm");
+    const productName = document.getElementById("product_name");
+    const slug = document.getElementById("slug");
+    const sku = document.getElementById("sku");
+    const mrp = document.getElementById("mrp");
+    const sellingPrice = document.getElementById("selling_price");
+    const discountPreview = document.getElementById("discountPreview");
+    const inventoryToggle = document.getElementById("track_inventory");
+    const inventoryFields = document.getElementById("inventoryFields");
+    const saveButton = document.getElementById("saveProductButton");
+
+    let slugEdited = slug.value.trim() !== "";
+    let skuEdited = sku.value.trim() !== "";
+
+    function slugify(value) {
+        return value
+            .toLowerCase()
+            .trim()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-+|-+$/g, "")
+            .replace(/-{2,}/g, "-");
+    }
+
+    function buildSku(value) {
+        const words = value
+            .toUpperCase()
+            .trim()
+            .match(/[A-Z0-9]+/g) || [];
+
+        const prefix = words
+            .slice(0, 2)
+            .map(function (word) {
+                return word.slice(0, 3);
+            })
+            .join("");
+
+        return prefix || "PRD";
+    }
+
+    function updateGeneratedFields() {
+        if (!slugEdited) {
+            slug.value = slugify(productName.value);
+        }
+
+        if (!skuEdited) {
+            sku.value = buildSku(productName.value);
+        }
+    }
+
+    function updateDiscount() {
+        const mrpValue = Number.parseFloat(mrp.value) || 0;
+        const sellingValue = Number.parseFloat(sellingPrice.value) || 0;
+        const discount = Math.max(mrpValue - sellingValue, 0);
+
+        discountPreview.textContent =
+            "₹" + discount.toFixed(2);
+
+        if (sellingValue > mrpValue && mrpValue >= 0) {
+            sellingPrice.setCustomValidity(
+                "Selling price cannot exceed MRP."
+            );
+        } else {
+            sellingPrice.setCustomValidity("");
+        }
+    }
+
+    function updateInventoryState() {
+        const controls = inventoryFields.querySelectorAll("input");
+
+        controls.forEach(function (control) {
+            control.disabled = !inventoryToggle.checked;
+        });
+
+        inventoryFields.classList.toggle(
+            "opacity-50",
+            !inventoryToggle.checked
+        );
+    }
+
+    productName.addEventListener("input", updateGeneratedFields);
+
+    slug.addEventListener("input", function () {
+        slugEdited = slug.value.trim() !== "";
+    });
+
+    sku.addEventListener("input", function () {
+        skuEdited = sku.value.trim() !== "";
+        sku.value = sku.value.toUpperCase();
+    });
+
+    mrp.addEventListener("input", updateDiscount);
+    sellingPrice.addEventListener("input", updateDiscount);
+
+    inventoryToggle.addEventListener(
+        "change",
+        updateInventoryState
+    );
+
+    form.addEventListener("submit", function (event) {
+        updateDiscount();
+
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+            form.classList.add("was-validated");
+            return;
+        }
+
+        saveButton.disabled = true;
+        saveButton.innerHTML =
+            '<span class="spinner-border spinner-border-sm me-2"></span>' +
+            "Creating Product...";
+    });
+
+    updateGeneratedFields();
+    updateDiscount();
+    updateInventoryState();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends "layouts/store_base.html" %}
+{% block title %}Categories | Leaf Online Store{% endblock %}
+{% block content %}
+<section class="catalogue-hero"><div class="container"><span class="eyebrow"><span class="eyebrow-dot"></span> Browse collections</span><h1>Shop by category.</h1><p>Explore the catalogue through curated product groups.</p></div></section>
+<section class="section"><div class="container"><div class="category-grid category-directory">{% for category in categories %}<a href="/shop?category={{ category.slug }}" class="category-card category-card-{{ ['green','cream','blue','pink'][loop.index0 % 4] }}"><svg class="category-icon" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span>{{ category.name }}</span><p>{{ category.description or "Discover products in this collection." }}</p><strong>{{ product_counts.get(category.id, 0) }} product{% if product_counts.get(category.id, 0) != 1 %}s{% endif %} →</strong></a>{% else %}<div class="store-empty"><strong>No categories published yet.</strong></div>{% endfor %}</div></div></section>
+{% endblock %}
