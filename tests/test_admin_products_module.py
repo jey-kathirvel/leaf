@@ -1,9 +1,12 @@
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
+from fastapi.testclient import TestClient
 
 from app.main import app
+from app.db.deps import get_db
 from app.routers import admin_products
+from tests.test_product_service import database_session
 
 
 EXPECTED_ROUTES = {
@@ -16,6 +19,10 @@ EXPECTED_ROUTES = {
     ("POST", "/admin/products/{product_id:int}/edit"),
     ("POST", "/admin/products/{product_id:int}/delete"),
     ("POST", "/admin/products/{product_id:int}/toggle-status"),
+    ("POST", "/admin/products/{product_id:int}/images"),
+    ("POST", "/admin/products/{product_id:int}/images/{image_id:int}/primary"),
+    ("POST", "/admin/products/{product_id:int}/images/{image_id:int}/move"),
+    ("POST", "/admin/products/{product_id:int}/images/{image_id:int}/delete"),
 }
 
 EXPECTED_TEMPLATES = {
@@ -158,3 +165,39 @@ def test_product_templates_use_expected_actions() -> None:
     )
 
     assert "/admin/products" in list_content
+
+
+def test_image_upload_checks_authentication_before_form_validation() -> None:
+    client = TestClient(app)
+    response = client.post(
+        "/admin/products/1/images",
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/admin/login"
+
+
+def test_public_pages_use_https_safe_root_relative_assets() -> None:
+    db = database_session()
+
+    def override_db():
+        yield db
+
+    app.dependency_overrides[get_db] = override_db
+    client = TestClient(app)
+
+    try:
+        storefront = client.get("/")
+        login = client.get("/admin/login")
+    finally:
+        app.dependency_overrides.clear()
+        db.close()
+
+    assert storefront.status_code == 200
+    assert login.status_code == 200
+    assert 'href="/static/css/store.css?v=checkout-1"' in storefront.text
+    assert 'src="/static/js/store.js?v=checkout-1"' in storefront.text
+    assert 'href="/static/css/admin.css?v=aurora-1"' in login.text
+    assert "http://leaf.ads-ai.in/static" not in storefront.text
+    assert "http://leaf.ads-ai.in/static" not in login.text

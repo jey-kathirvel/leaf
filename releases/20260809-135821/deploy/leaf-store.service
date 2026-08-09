@@ -1,0 +1,18 @@
+[Unit]
+Description=Leaf Store FastAPI application
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=leaf
+Group=www-data
+WorkingDirectory=/opt/leaf-store
+EnvironmentFile=/opt/leaf-store/.env
+ExecStart=/opt/leaf-store/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8070 --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=always
+RestartSec=5
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
