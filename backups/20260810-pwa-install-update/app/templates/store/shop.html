@@ -1,0 +1,21 @@
+{% extends "layouts/store_base.html" %}
+{% block title %}Shop | Leaf Online Store{% endblock %}
+{% block content %}
+<section class="catalogue-hero"><div class="container"><span class="eyebrow"><span class="eyebrow-dot"></span> Leaf catalogue</span><h1>Find something made for your everyday.</h1><p>Browse active products published from the Leaf administration panel.</p></div></section>
+<section class="section catalogue-section"><div class="container catalogue-layout">
+    <aside class="catalogue-filters">
+        <form method="get" action="/shop">
+            <label for="shop-search">Search products</label><div class="search-field"><input id="shop-search" name="q" value="{{ filters.q }}" placeholder="Name, description or SKU"><button type="submit" aria-label="Search">→</button></div>
+            <label for="shop-category">Category</label><select id="shop-category" name="category"><option value="">All categories</option>{% for item in categories %}<option value="{{ item.slug }}" {% if filters.category == item.slug %}selected{% endif %}>{{ item.name }}</option>{% endfor %}</select>
+            <label for="shop-brand">Brand</label><select id="shop-brand" name="brand"><option value="">All brands</option>{% for item in brands %}<option value="{{ item.slug }}" {% if filters.brand == item.slug %}selected{% endif %}>{{ item.name }}</option>{% endfor %}</select>
+            <label class="filter-check"><input type="checkbox" name="featured" value="true" {% if filters.featured %}checked{% endif %}> Featured products only</label>
+            <button class="button button-primary filter-submit" type="submit">Apply filters</button><a class="clear-filters" href="/shop">Clear filters</a>
+        </form>
+    </aside>
+    <div class="catalogue-results">
+        <div class="catalogue-toolbar"><div><strong>{{ total }}</strong> product{% if total != 1 %}s{% endif %}</div>{% if filters.q %}<span>Results for “{{ filters.q }}”</span>{% endif %}</div>
+        <div class="product-grid catalogue-product-grid">{% for product in products %}{% include "store/_product_card.html" %}{% else %}<div class="store-empty"><strong>No matching products.</strong><span>Try changing or clearing the filters.</span></div>{% endfor %}</div>
+        {% if total_pages > 1 %}<nav class="pagination" aria-label="Catalogue pages">{% if page > 1 %}<a href="?q={{ filters.q }}&category={{ filters.category }}&brand={{ filters.brand }}&page={{ page - 1 }}">Previous</a>{% endif %}<span>Page {{ page }} of {{ total_pages }}</span>{% if page < total_pages %}<a href="?q={{ filters.q }}&category={{ filters.category }}&brand={{ filters.brand }}&page={{ page + 1 }}">Next</a>{% endif %}</nav>{% endif %}
+    </div>
+</div></section>
+{% endblock %}

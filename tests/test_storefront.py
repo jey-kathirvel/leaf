@@ -29,6 +29,8 @@ def test_storefront_empty_catalogue_pages_render() -> None:
         assert client.get("/shop").status_code == 200
         assert client.get("/categories").status_code == 200
         assert client.get("/contact").status_code == 200
+        assert client.get("/shipping").status_code == 200
+        assert client.get("/returns").status_code == 200
         assert client.get("/offers", follow_redirects=False).headers["location"] == "/shop?featured=true"
         assert client.get("/product/missing").status_code == 404
     finally:

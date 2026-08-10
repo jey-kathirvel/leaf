@@ -1,5 +1,60 @@
 "use strict";
 
+let deferredInstallPrompt = null;
+const pwaInstallButton = document.getElementById("pwaInstallButton");
+const pwaUpdateToast = document.getElementById("pwaUpdateToast");
+const pwaUpdateButton = document.getElementById("pwaUpdateButton");
+
+window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    if (pwaInstallButton) pwaInstallButton.hidden = false;
+});
+
+if (pwaInstallButton) {
+    pwaInstallButton.addEventListener("click", async () => {
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        pwaInstallButton.hidden = true;
+    });
+}
+
+window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    if (pwaInstallButton) pwaInstallButton.hidden = true;
+});
+
+if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/service-worker.js").then((registration) => {
+            const offerUpdate = (worker) => {
+                if (!worker || !navigator.serviceWorker.controller || !pwaUpdateToast) return;
+                pwaUpdateToast.hidden = false;
+                if (pwaUpdateButton) pwaUpdateButton.onclick = () => worker.postMessage({type: "SKIP_WAITING"});
+            };
+            offerUpdate(registration.waiting);
+            registration.addEventListener("updatefound", () => {
+                const worker = registration.installing;
+                if (!worker) return;
+                worker.addEventListener("statechange", () => {
+                    if (worker.state === "installed") offerUpdate(worker);
+                });
+            });
+        }).catch(() => {
+            // The storefront remains fully functional when registration is unavailable.
+        });
+    });
+
+    let pwaRefreshing = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (pwaRefreshing) return;
+        pwaRefreshing = true;
+        window.location.reload();
+    });
+}
+
 const mobileMenuButton = document.getElementById(
     "mobileMenuButton"
 );

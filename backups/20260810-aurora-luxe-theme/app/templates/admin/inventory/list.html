@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% block title %}Inventory | Leaf Admin{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="mb-4"><p class="text-uppercase text-success fw-bold small mb-1">Store operations</p><h1 class="h3">Inventory</h1></div>
+    {% if flash %}<div class="alert alert-{{ flash.category }}">{{ flash.message }}</div>{% endif %}
+    <form class="card border-0 shadow-sm mb-4" method="get"><div class="card-body row g-3">
+        <div class="col-lg-7"><input class="form-control" name="q" value="{{ filters.q }}" placeholder="Search product or SKU"></div>
+        <div class="col-lg-3"><select class="form-select" name="stock"><option value="">All stock levels</option><option value="out" {% if filters.stock == 'out' %}selected{% endif %}>Out of stock</option><option value="low" {% if filters.stock == 'low' %}selected{% endif %}>Low stock</option><option value="available" {% if filters.stock == 'available' %}selected{% endif %}>Available</option></select></div>
+        <div class="col-lg-2"><button class="btn btn-primary w-100">Filter</button></div>
+    </div></form>
+    {% for product, item in rows %}<form id="inventory-{{ item.id }}" method="post" action="/admin/inventory/{{ item.id }}/update"></form>{% endfor %}
+    <div class="card border-0 shadow-sm"><div class="table-responsive"><table class="table align-middle mb-0">
+        <thead><tr><th>Product</th><th>Tracking</th><th>Available</th><th>Reserved</th><th>Low threshold</th><th>Maximum</th><th></th></tr></thead>
+        <tbody>{% for product, item in rows %}<tr>
+            <td><a class="fw-bold text-decoration-none" href="/admin/products/{{ product.id }}">{{ product.name }}</a><small class="d-block text-muted">{{ product.sku }}</small></td>
+            <td><span class="badge {{ 'bg-success-subtle text-success' if product.track_inventory else 'bg-secondary-subtle text-secondary' }}">{{ 'Tracked' if product.track_inventory else 'Not tracked' }}</span></td>
+            <td><input form="inventory-{{ item.id }}" class="form-control" style="width:90px" name="quantity" type="number" min="0" value="{{ item.quantity }}" {{ 'disabled' if not product.track_inventory }}></td>
+            <td>{{ item.reserved_quantity }}</td>
+            <td><input form="inventory-{{ item.id }}" class="form-control" style="width:90px" name="low_stock_threshold" type="number" min="0" value="{{ item.low_stock_threshold }}" {{ 'disabled' if not product.track_inventory }}></td>
+            <td><input form="inventory-{{ item.id }}" class="form-control" style="width:90px" name="max_quantity" type="number" min="0" value="{{ item.max_quantity }}" {{ 'disabled' if not product.track_inventory }}></td>
+            <td>{% if product.track_inventory %}<button form="inventory-{{ item.id }}" class="btn btn-primary btn-sm">Save</button>{% else %}<span class="text-muted small">Enable in product</span>{% endif %}</td>
+        </tr>{% else %}<tr><td colspan="7" class="text-center py-5 text-muted">No inventory records match these filters.</td></tr>{% endfor %}</tbody>
+    </table></div></div>
+</div>
+{% endblock %}

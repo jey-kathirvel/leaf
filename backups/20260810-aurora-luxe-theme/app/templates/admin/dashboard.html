@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Admin Dashboard | Leaf</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/static/css/admin.css?v=aurora-1"
+    >
+</head>
+
+<body class="admin-body">
+
+<div class="admin-layout">
+
+    <aside class="admin-sidebar">
+
+        <a
+            href="/admin"
+            class="admin-sidebar-brand"
+        >
+            <span class="admin-brand-logo">L</span>
+
+            <div>
+                <strong>Leaf</strong>
+                <small>Administration</small>
+            </div>
+        </a>
+
+        <nav class="admin-navigation">
+            <a
+                href="/admin"
+                class="active"
+            >
+                Dashboard
+            </a>
+
+            <a href="/admin/categories">
+                Categories
+            </a>
+
+            <a href="/admin/products">
+                Products
+            </a>
+
+            <a href="/admin/inventory">
+                Inventory
+            </a>
+
+            <a href="/admin/orders">
+                Orders
+            </a>
+
+            <a href="/admin/customers">
+                Customers
+            </a>
+        </nav>
+
+        <div class="admin-sidebar-footer">
+            <a href="/">
+                View storefront
+            </a>
+
+            <form
+                method="post"
+                action="/admin/logout"
+            >
+                <button type="submit">
+                    Sign out
+                </button>
+            </form>
+        </div>
+
+    </aside>
+
+    <main class="admin-main">
+
+        <header class="admin-topbar">
+            <div>
+                <span class="admin-eyebrow">
+                    Store overview
+                </span>
+
+                <h1>Dashboard</h1>
+            </div>
+
+            <div class="admin-profile">
+                <span>
+                    {{ admin.full_name[0] }}
+                </span>
+
+                <div>
+                    <strong>
+                        {{ admin.full_name }}
+                    </strong>
+
+                    <small>
+                        {{ admin.role.replace("_", " ")|title }}
+                    </small>
+                </div>
+            </div>
+        </header>
+
+        <section class="admin-metrics">
+
+            <article class="admin-metric-card">
+                <span>Products</span>
+                <strong>{{ metrics.products }}</strong>
+                <small>Store catalogue</small>
+            </article>
+
+            <article class="admin-metric-card">
+                <span>Categories</span>
+                <strong>{{ metrics.categories }}</strong>
+                <small>Active organisation</small>
+            </article>
+
+            <article class="admin-metric-card">
+                <span>Customers</span>
+                <strong>{{ metrics.customers }}</strong>
+                <small>Registered shoppers</small>
+            </article>
+
+            <article class="admin-metric-card">
+                <span>Orders</span>
+                <strong>{{ metrics.orders }}</strong>
+                <small>Total order records</small>
+            </article>
+
+        </section>
+
+        <section class="admin-panel">
+
+            <div class="admin-panel-header">
+                <div>
+                    <span class="admin-eyebrow">
+                        Latest activity
+                    </span>
+
+                    <h2>Recent Orders</h2>
+                </div>
+
+                <a href="/admin/orders">
+                    View all orders
+                </a>
+            </div>
+
+            {% if recent_orders %}
+
+            <div class="admin-table-wrapper">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Total</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr>
+                            <td>
+                                <strong>
+                                    {{ order.order_number }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ order.status.value|title }}
+                            </td>
+
+                            <td>
+                                {{ order.payment_status.value|title }}
+                            </td>
+
+                            <td>
+                                ₹{{ "%.2f"|format(order.grand_total) }}
+                            </td>
+
+                            <td>
+                                {{ order.created_at.strftime("%d %b %Y") }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="admin-empty-state">
+                <span>Orders</span>
+
+                <h3>No orders yet</h3>
+
+                <p>
+                    New customer orders will appear here.
+                </p>
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

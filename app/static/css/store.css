@@ -15,6 +15,26 @@
     --container-width: 1180px;
 }
 
+/* Customer policy pages */
+.policy-hero { padding: 95px 0 70px; text-align: center; background: linear-gradient(135deg,#ffe1d7,#fff3c8 55%,#d5eee4); }
+.policy-hero.returns-hero { background: linear-gradient(135deg,#ddd4fa,#ffe0d7 55%,#fff0b8); }
+.policy-hero h1 { margin: 12px auto; font-size: clamp(48px,7vw,78px); line-height: 1; letter-spacing: -.05em; }
+.policy-hero p { max-width: 620px; margin: 0 auto; color: #62736d; font-size: 16px; }
+.policy-layout { display: grid; grid-template-columns: 230px minmax(0,1fr); gap: 55px; align-items: start; }
+.policy-index { position: sticky; top: 120px; display: grid; gap: 5px; padding: 22px; border: 1px solid #e7ded2; border-radius: 6px; background: #fff; box-shadow: var(--leaf-shadow); }
+.policy-index strong { margin-bottom: 9px; font-family: "Playfair Display",serif; font-size: 19px; }
+.policy-index a { padding: 9px 10px; border-radius: 4px; color: #5f706a; font-size: 12px; text-decoration: none; }
+.policy-index a:hover { color: #173f35; background: #f4eee4; }
+.policy-content { display: grid; }
+.policy-content > section { display: grid; grid-template-columns: 55px 1fr; gap: 20px; padding: 0 0 38px; margin-bottom: 38px; border-bottom: 1px solid #e8dfd3; scroll-margin-top: 120px; }
+.policy-content > section:last-child { border-bottom: 0; }
+.policy-content > section > span { display: grid; width: 44px; height: 44px; place-items: center; border: 2px solid #173f35; border-radius: 50%; color: #173f35; background: #ffe078; font-family: "Playfair Display",serif; font-weight: 700; }
+.policy-content h2 { margin: 3px 0 13px; font-size: 30px; }
+.policy-content p { color: #60716b; line-height: 1.8; }
+.policy-content p a { color: #df5947; font-weight: 700; }
+.policy-content .button { margin-top: 10px; }
+@media (max-width:760px) { .policy-hero{padding:65px 0 45px}.policy-layout{grid-template-columns:1fr;gap:28px}.policy-index{position:static}.policy-content>section{grid-template-columns:42px 1fr;gap:14px}.policy-content>section>span{width:36px;height:36px}.policy-content h2{font-size:25px} }
+
 /* Sunlit fashion storefront */
 .sunlit-store {
     --leaf-primary: #ed5f4b;
@@ -1377,3 +1397,113 @@ body::before {
     .hero-content h1 { font-size: clamp(42px, 12vw, 60px); }
     .main-nav { background: rgba(255,255,255,.85); backdrop-filter: blur(22px); }
 }
+
+/* Aurora Luxe — inspired by the visual language of SimplPay */
+.aurora-luxe-store {
+    --leaf-primary: #4f46e5;
+    --leaf-primary-dark: #312e81;
+    --leaf-muted: #667085;
+    --leaf-shadow: 0 24px 70px rgba(49,46,129,.13);
+    min-height: 100vh;
+    color: #111827;
+    background: #f4f7fb;
+    font-family: Inter, "DM Sans", sans-serif;
+}
+.leaf-aurora { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
+.leaf-orb { position: absolute; border-radius: 50%; filter: blur(8px); opacity: .62; }
+.leaf-orb-blue { width: 600px; height: 600px; top: -210px; left: -180px; background: radial-gradient(circle,rgba(96,165,250,.58),rgba(96,165,250,0) 68%); }
+.leaf-orb-violet { width: 720px; height: 720px; top: 6%; right: -280px; background: radial-gradient(circle,rgba(167,139,250,.56),rgba(167,139,250,0) 70%); }
+.leaf-orb-cyan { width: 650px; height: 650px; bottom: -280px; left: 28%; background: radial-gradient(circle,rgba(34,211,238,.38),rgba(34,211,238,0) 68%); }
+.leaf-aurora-noise { position: absolute; inset: 0; opacity: .18; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E"); }
+.aurora-luxe-store .store-announcement { min-height: 34px; background: linear-gradient(90deg,#312e81,#4f46e5 45%,#06b6d4); box-shadow: 0 8px 30px rgba(79,70,229,.18); }
+.aurora-luxe-store .site-header { top: 14px; width: min(calc(100% - 28px),1240px); margin: 14px auto 0; border: 1px solid rgba(255,255,255,.82); border-radius: 24px; background: linear-gradient(145deg,rgba(255,255,255,.82),rgba(255,255,255,.55)); box-shadow: 0 16px 45px rgba(51,65,85,.10),inset 0 1px rgba(255,255,255,.95); backdrop-filter: blur(26px) saturate(155%); }
+.aurora-luxe-store .header-inner { min-height: 72px; }
+.aurora-luxe-store .brand-icon { background: linear-gradient(145deg,#4f46e5,#7c3aed 55%,#06b6d4); box-shadow: 0 9px 24px rgba(79,70,229,.25),inset 0 1px rgba(255,255,255,.45); }
+.aurora-luxe-store .brand-copy strong { font-family: Inter,sans-serif; font-size: 24px; font-weight: 800; letter-spacing: -.04em; }
+.aurora-luxe-store .main-nav a { color: #344054; }
+.aurora-luxe-store .main-nav a:first-child { color: #4f46e5; }
+.aurora-luxe-store .main-nav a::after { background: linear-gradient(90deg,#4f46e5,#7c3aed,#06b6d4); }
+.aurora-luxe-store .icon-action { border: 1px solid rgba(255,255,255,.76); background: rgba(255,255,255,.46); box-shadow: inset 0 1px rgba(255,255,255,.85); }
+.aurora-luxe-store .icon-action:hover { color: #4f46e5; background: rgba(255,255,255,.8); }
+.aurora-luxe-store .cart-action { border: 1px solid rgba(255,255,255,.2); background: linear-gradient(135deg,#111827,#312e81 50%,#4f46e5); box-shadow: 0 12px 28px rgba(49,46,129,.24),inset 0 1px rgba(255,255,255,.18); }
+.aurora-luxe-store h1,.aurora-luxe-store h2 { font-family: Inter,"DM Sans",sans-serif; font-weight: 800; }
+.aurora-luxe-store .fashion-hero { min-height: 665px; margin-top: -88px; padding-top: 110px; background: transparent; }
+.aurora-luxe-store .fashion-hero-inner { min-height: 555px; }
+.aurora-luxe-store .fashion-hero-image { inset: 42px max(28px,calc((100% - 1180px)/2)) 42px 51%; overflow: hidden; border: 1px solid rgba(255,255,255,.78); border-radius: 38px; background-position: 68% center; box-shadow: 0 35px 90px rgba(49,46,129,.17),inset 0 1px rgba(255,255,255,.9); }
+.aurora-luxe-store .fashion-hero-image::after { background: linear-gradient(90deg,rgba(244,247,251,.28),transparent 30%); }
+.aurora-luxe-store .fashion-hero-copy { width: 47%; padding-top: 95px; }
+.aurora-luxe-store .fashion-kicker,.aurora-luxe-store .fashion-section-heading>div>span,.aurora-luxe-store .fashion-story>.container>div>span { color: #4f46e5; }
+.aurora-luxe-store .fashion-hero h1 { color: #111827; font-size: clamp(54px,5.7vw,78px); font-family: Inter,sans-serif; font-weight: 800; letter-spacing: -.065em; }
+.aurora-luxe-store .fashion-hero h1 em { color: transparent; background: linear-gradient(105deg,#4f46e5,#7c3aed 55%,#0891b2); -webkit-background-clip: text; background-clip: text; font-family: inherit; font-style: normal; font-weight: 800; }
+.aurora-luxe-store .fashion-hero-copy>p { color: #667085; }
+.aurora-luxe-store .button { min-height: 54px; border-radius: 17px; }
+.aurora-luxe-store .button-primary { border: 1px solid rgba(255,255,255,.2); background: linear-gradient(135deg,#4f46e5,#7c3aed 52%,#06b6d4); background-size: 180% 180%; box-shadow: 0 16px 36px rgba(79,70,229,.26),0 0 32px rgba(6,182,212,.10),inset 0 1px rgba(255,255,255,.24); }
+.aurora-luxe-store .button-primary:hover { background-position: 100% 50%; transform: translateY(-2px); box-shadow: 0 20px 42px rgba(79,70,229,.3); }
+.aurora-luxe-store .button-secondary { border: 1px solid rgba(99,102,241,.22); border-radius: 17px; background: linear-gradient(145deg,rgba(255,255,255,.76),rgba(255,255,255,.38)); box-shadow: 0 8px 24px rgba(15,23,42,.07); backdrop-filter: blur(18px); }
+.aurora-luxe-store .fashion-trust span { padding: 8px 11px; border: 1px solid rgba(255,255,255,.72); border-radius: 999px; background: rgba(255,255,255,.48); box-shadow: inset 0 1px rgba(255,255,255,.85); }
+.aurora-luxe-store .fashion-benefits { padding: 0 14px; border: 0; background: transparent; }
+.aurora-luxe-store .fashion-benefits>.container { overflow: hidden; border: 1px solid rgba(255,255,255,.82); border-radius: 24px; background: rgba(255,255,255,.58); box-shadow: 0 18px 55px rgba(49,46,129,.08),inset 0 1px rgba(255,255,255,.95); backdrop-filter: blur(22px); }
+.aurora-luxe-store .fashion-benefits div div { border-color: rgba(148,163,184,.18); }
+.aurora-luxe-store .fashion-benefits strong { font-family: Inter,sans-serif; font-size: 14px; }
+.aurora-luxe-store .fashion-categories,.aurora-luxe-store .fashion-products,.aurora-luxe-store .newsletter-section { background: transparent; }
+.aurora-luxe-store .fashion-section-heading h2 { color: #111827; font-family: Inter,sans-serif; font-weight: 800; }
+.aurora-luxe-store .fashion-section-heading>a { border: 0; color: #4f46e5; }
+.aurora-luxe-store .fashion-category-grid { gap: 20px; }
+.aurora-luxe-store .fashion-category-card { border: 1px solid rgba(255,255,255,.8); border-radius: 26px; box-shadow: 0 18px 55px rgba(49,46,129,.09),inset 0 1px rgba(255,255,255,.95); backdrop-filter: blur(22px); }
+.aurora-luxe-store .fashion-category-card:hover { transform: translateY(-6px); box-shadow: 0 26px 65px rgba(49,46,129,.15); }
+.aurora-luxe-store .fashion-category-card.tone-1 { background: linear-gradient(145deg,rgba(255,255,255,.72),rgba(254,202,202,.44)); }.aurora-luxe-store .fashion-category-card.tone-2{background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(167,243,208,.42))}.aurora-luxe-store .fashion-category-card.tone-3{background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(253,230,138,.42))}.aurora-luxe-store .fashion-category-card.tone-4{background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(196,181,253,.48))}
+.aurora-luxe-store .fashion-category-card strong { font-family: Inter,sans-serif; font-size: 22px; font-weight: 800; }
+.aurora-luxe-store .fashion-category-symbol { color: #4f46e5; background: rgba(255,255,255,.6); box-shadow: inset 0 1px rgba(255,255,255,.9); }
+.aurora-luxe-store .fashion-card { padding: 10px; border: 1px solid rgba(255,255,255,.8); border-radius: 25px; background: rgba(255,255,255,.58); box-shadow: 0 16px 50px rgba(49,46,129,.08),inset 0 1px rgba(255,255,255,.94); backdrop-filter: blur(20px); transition: transform .22s,box-shadow .22s; }
+.aurora-luxe-store .fashion-card:hover { transform: translateY(-6px); box-shadow: 0 24px 65px rgba(49,46,129,.14); }
+.aurora-luxe-store .fashion-card-media,.aurora-luxe-store .fashion-card .product-image { border-radius: 18px; }
+.aurora-luxe-store .fashion-card .product-content { padding: 15px 5px 7px; }
+.aurora-luxe-store .fashion-card h3 { font-family: Inter,sans-serif; font-size: 16px; font-weight: 700; }
+.aurora-luxe-store .fashion-quick-add { border-radius: 14px; background: linear-gradient(135deg,#111827,#312e81 48%,#4f46e5); box-shadow: 0 12px 26px rgba(49,46,129,.24); }
+.aurora-luxe-store .fashion-story { margin: 35px 14px 0; border: 1px solid rgba(255,255,255,.2); border-radius: 34px; background: linear-gradient(135deg,#111827,#312e81 55%,#4f46e5); box-shadow: 0 28px 75px rgba(49,46,129,.25); }
+.aurora-luxe-store .fashion-story h2 { font-family: Inter,sans-serif; font-weight: 800; }
+.aurora-luxe-store .fashion-story h2 em { color: #a5f3fc; font-family: inherit; font-style: normal; }
+.aurora-luxe-store .newsletter-card { border: 1px solid rgba(255,255,255,.78); border-radius: 30px; color: #111827; background: linear-gradient(145deg,rgba(255,255,255,.75),rgba(255,255,255,.42)); box-shadow: 0 24px 70px rgba(49,46,129,.13),inset 0 1px rgba(255,255,255,.95); backdrop-filter: blur(24px); }
+.aurora-luxe-store .newsletter-card h2 { color: #111827; font-family: Inter,sans-serif; font-weight: 800; }
+.aurora-luxe-store .newsletter-form { border: 1px solid rgba(99,102,241,.18); border-radius: 18px; background: rgba(255,255,255,.7); }
+.aurora-luxe-store .newsletter-form .button { border-radius: 14px; background: linear-gradient(135deg,#4f46e5,#7c3aed,#06b6d4); }
+.aurora-luxe-store .catalogue-hero,.aurora-luxe-store .policy-hero { margin: 28px 14px 0; border: 1px solid rgba(255,255,255,.78); border-radius: 32px; background: linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,255,255,.38)); box-shadow: 0 22px 65px rgba(49,46,129,.10); backdrop-filter: blur(22px); }
+.aurora-luxe-store .catalogue-filters,.aurora-luxe-store .order-summary,.aurora-luxe-store .checkout-card,.aurora-luxe-store .account-sidebar,.aurora-luxe-store .account-welcome,.aurora-luxe-store .account-order-card,.aurora-luxe-store .policy-index { border: 1px solid rgba(255,255,255,.8); border-radius: 22px; background: rgba(255,255,255,.62); box-shadow: 0 18px 55px rgba(49,46,129,.09),inset 0 1px rgba(255,255,255,.95); backdrop-filter: blur(22px); }
+.aurora-luxe-store .site-footer { margin-top: 70px; background: linear-gradient(135deg,#0f172a,#312e81 58%,#164e63); }
+@media (prefers-reduced-motion:no-preference) { .leaf-orb-blue{animation:leaf-drift-a 14s ease-in-out infinite}.leaf-orb-violet{animation:leaf-drift-b 17s ease-in-out infinite}.leaf-orb-cyan{animation:leaf-drift-a 20s ease-in-out reverse infinite}.aurora-luxe-store .button-primary{animation:leaf-gradient 7s ease infinite}@keyframes leaf-drift-a{0%,100%{transform:translate(0,0)}50%{transform:translate(45px,28px)}}@keyframes leaf-drift-b{0%,100%{transform:translate(0,0)}50%{transform:translate(-55px,40px)}}@keyframes leaf-gradient{0%,100%{background-position:0 50%}50%{background-position:100% 50%}} }
+@media(max-width:980px){.aurora-luxe-store .fashion-hero-image{left:48%}.aurora-luxe-store .fashion-hero-copy{width:48%}}
+@media(max-width:760px){.aurora-luxe-store .site-header{top:8px;width:calc(100% - 16px);margin:8px auto 0;border-radius:20px}.aurora-luxe-store .main-nav{top:72px;border:1px solid rgba(255,255,255,.85);background:rgba(255,255,255,.84);backdrop-filter:blur(24px)}.aurora-luxe-store .fashion-hero{min-height:760px;margin-top:-80px;padding-top:90px}.aurora-luxe-store .fashion-hero-inner{min-height:680px;align-items:flex-start}.aurora-luxe-store .fashion-hero-image{inset:330px 12px 20px;border-radius:28px;background-position:67% center}.aurora-luxe-store .fashion-hero-image::after{background:linear-gradient(180deg,rgba(244,247,251,.22),transparent 28%)}.aurora-luxe-store .fashion-hero-copy{width:100%;padding-top:55px}.aurora-luxe-store .fashion-hero h1{font-size:50px}.aurora-luxe-store .fashion-benefits>.container{border-radius:20px}.aurora-luxe-store .fashion-story{margin-right:8px;margin-left:8px;border-radius:26px}.aurora-luxe-store .catalogue-hero,.aurora-luxe-store .policy-hero{margin:15px 8px 0;border-radius:26px}}
+
+/* Keep mobile hero actions readable and give the campaign image its own stage. */
+@media(max-width:520px){
+    .aurora-luxe-store .fashion-hero{min-height:1110px}
+    .aurora-luxe-store .fashion-hero-inner{min-height:570px}
+    .aurora-luxe-store .fashion-hero-copy{padding-top:52px}
+    .aurora-luxe-store .fashion-hero h1{font-size:46px;line-height:.98}
+    .aurora-luxe-store .fashion-hero-copy>p{font-size:15px;line-height:1.6}
+    .aurora-luxe-store .fashion-hero-actions{margin-top:22px}
+    .aurora-luxe-store .fashion-trust{gap:7px;margin-top:18px}
+    .aurora-luxe-store .fashion-trust span{padding:7px 9px;font-size:9px}
+    .aurora-luxe-store .fashion-hero-image{inset:630px 12px 24px;border-radius:28px;background-position:67% center}
+    .aurora-luxe-store .fashion-hero-image::after{background:linear-gradient(180deg,rgba(244,247,251,.12),transparent 24%)}
+}
+
+.payment-option + .payment-option { margin-top: 12px; }
+.payment-unavailable { display: grid; gap: 5px; margin-top: 12px; padding: 16px; border: 1px solid rgba(245,158,11,.3); border-radius: 16px; color: #92400e; background: rgba(254,243,199,.64); }
+.payment-unavailable span { font-size: 13px; }
+.upi-payment-panel { display: grid; grid-template-columns: minmax(190px,230px) 1fr; gap: 28px; align-items: center; width: min(100%,680px); margin: 26px auto; padding: 24px; border: 1px solid rgba(255,255,255,.8); border-radius: 26px; background: rgba(255,255,255,.64); box-shadow: 0 20px 55px rgba(49,46,129,.12); }
+.upi-qr { width: 100%; aspect-ratio: 1; padding: 10px; border-radius: 20px; background: #fff; }
+.upi-payment-copy { display: grid; gap: 9px; text-align: left; }
+.upi-payment-copy > span,.upi-payment-copy small { color: #667085; }
+.upi-payment-copy > strong { font-size: 22px; }
+.upi-payment-copy code { padding: 10px 12px; border-radius: 10px; color: #312e81; background: rgba(224,231,255,.7); font-size: 14px; overflow-wrap: anywhere; }
+.payment-pending-note { display: grid; gap: 5px; width: min(100%,680px); margin: 20px auto; padding: 16px; border: 1px solid rgba(245,158,11,.28); border-radius: 16px; color: #92400e; background: rgba(254,243,199,.58); text-align: left; }
+.payment-pending-note span { font-size: 13px; line-height: 1.5; }
+.pending-icon { color: #92400e; background: rgba(254,243,199,.8); }
+@media(max-width:600px){.upi-payment-panel{grid-template-columns:1fr}.upi-qr{max-width:240px;margin:auto}.upi-payment-copy{text-align:center}.upi-payment-copy .button{justify-content:center}}
+
+.pwa-install-button { cursor: pointer; font: inherit; }
+.pwa-update-toast { position: fixed; right: 18px; bottom: 18px; z-index: 1200; display: flex; align-items: center; gap: 14px; padding: 13px 15px; border: 1px solid rgba(255,255,255,.82); border-radius: 16px; color: #fff; background: linear-gradient(135deg,#111827,#312e81 55%,#4f46e5); box-shadow: 0 20px 55px rgba(49,46,129,.3); }
+.pwa-update-toast[hidden],.pwa-install-button[hidden] { display: none !important; }
+.pwa-update-toast button { padding: 8px 11px; border: 0; border-radius: 10px; color: #312e81; background: #fff; font-weight: 800; cursor: pointer; }
+@media(max-width:520px){.pwa-update-toast{right:10px;bottom:10px;left:10px;justify-content:space-between}.pwa-install-button .action-label{display:none}}

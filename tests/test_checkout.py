@@ -3,7 +3,8 @@ from sqlalchemy import select
 
 from app.db.deps import get_db
 from app.main import app
-from app.models import Category, Cart, Inventory, Order, Product
+from app.core.config import settings
+from app.models import Category, Cart, Inventory, Order, PaymentStatus, Product
 from app.services.product_service import ProductService
 from tests.test_product_service import database_session, payload
 
@@ -95,5 +96,65 @@ def test_checkout_rejects_invalid_delivery_details() -> None:
         assert "full name" in response.text
         assert db.scalar(select(Order)) is None
     finally:
+        app.dependency_overrides.clear()
+        db.close()
+
+
+def test_product_can_disable_cod_for_the_entire_cart() -> None:
+    client, db = checkout_client()
+    try:
+        db.add(Category(name="Prepaid", slug="prepaid"))
+        db.commit()
+        product = ProductService.create_product(db, payload(allow_cod=False))
+        client.post(f"/cart/items/{product.id}")
+
+        checkout = client.get("/checkout")
+        assert "Cash on Delivery unavailable" in checkout.text
+
+        response = client.post(
+            "/checkout",
+            data={
+                "full_name": "Leaf Customer", "email": "prepaid@example.com",
+                "mobile": "9876543210", "address_line1": "12 Green Street",
+                "city": "Chennai", "state": "Tamil Nadu", "pincode": "600001",
+                "payment_method": "cash_on_delivery",
+            },
+        )
+        assert response.status_code == 422
+        assert "not available for one or more items" in response.text
+        assert db.scalar(select(Order)) is None
+    finally:
+        app.dependency_overrides.clear()
+        db.close()
+
+
+def test_manual_upi_checkout_stays_payment_pending() -> None:
+    client, db = checkout_client()
+    original_enabled, original_vpa, original_name = settings.UPI_ENABLED, settings.UPI_VPA, settings.UPI_PAYEE_NAME
+    settings.UPI_ENABLED, settings.UPI_VPA, settings.UPI_PAYEE_NAME = True, "leaf@upi", "Leaf Test Store"
+    try:
+        db.add(Category(name="UPI", slug="upi"))
+        db.commit()
+        product = ProductService.create_product(db, payload(allow_cod=False, opening_stock=2))
+        client.post(f"/cart/items/{product.id}")
+        response = client.post(
+            "/checkout",
+            data={
+                "full_name": "UPI Customer", "email": "upi@example.com",
+                "mobile": "9876543210", "address_line1": "12 Green Street",
+                "city": "Chennai", "state": "Tamil Nadu", "pincode": "600001",
+                "payment_method": "upi",
+            },
+            follow_redirects=True,
+        )
+        order = db.scalar(select(Order))
+        assert response.status_code == 200
+        assert "Payment pending" in response.text
+        assert "Open UPI app" in response.text
+        assert "leaf%40upi" in response.text
+        assert order.payment_method == "upi"
+        assert order.payment_status == PaymentStatus.PENDING
+    finally:
+        settings.UPI_ENABLED, settings.UPI_VPA, settings.UPI_PAYEE_NAME = original_enabled, original_vpa, original_name
         app.dependency_overrides.clear()
         db.close()
