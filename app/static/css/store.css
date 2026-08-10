@@ -1,4 +1,4 @@
-/* Leaf Atelier — premium storefront */
+﻿/* Leaf Atelier â€” premium storefront */
 :root {
     --ink: #0d1a14;
     --text: #1a2b22;
@@ -459,6 +459,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 /* Motion */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
 .reveal.is-visible { opacity: 1; transform: none; }
+/* Keep the primary storefront message available even if client-side motion is blocked. */
+.atelier-hero-copy.reveal { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
     .reveal { opacity: 1; transform: none; transition: none; }
     .atelier-hero-media { animation: none; }

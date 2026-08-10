@@ -1,4 +1,4 @@
-import json
+﻿import json
 import struct
 from pathlib import Path
 
@@ -34,6 +34,8 @@ def test_pwa_manifest_and_service_worker_routes() -> None:
     assert "no-cache" in worker_response.headers["cache-control"]
     assert '"/admin"' in worker_response.text
     assert '"/checkout"' in worker_response.text
+    assert 'store.css?v=atelier-4' in worker_response.text
+    assert 'store.js?v=atelier-2' in worker_response.text
     assert offline_response.status_code == 200
     assert "currently offline" in offline_response.text
 

@@ -1,9 +1,9 @@
-const CACHE_NAME = "leaf-store-v6";
+﻿const CACHE_NAME = "leaf-store-v8-atelier";
 const OFFLINE_URL = "/offline";
 const PRECACHE = [
   OFFLINE_URL,
-  "/static/css/store.css?v=aurora-luxe-4",
-  "/static/js/store.js?v=pwa-2",
+  "/static/css/store.css?v=atelier-4",
+  "/static/js/store.js?v=atelier-2",
   "/static/icons/icon-192.png",
   "/static/icons/icon-512.png",
   "/static/icons/icon-maskable-512.png"

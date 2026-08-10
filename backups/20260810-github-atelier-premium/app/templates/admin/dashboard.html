@@ -1,0 +1,86 @@
+{% extends "admin/base.html" %}
+{% block title %}Admin Dashboard | Leaf{% endblock %}
+{% block content %}
+<div class="container-fluid py-4 admin-dashboard-shell">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <div class="text-uppercase text-muted small fw-semibold mb-1">Store overview</div>
+            <h1 class="h3 mb-1 fw-bold">Dashboard</h1>
+            <p class="text-muted mb-0">A clear view of catalogue health and recent orders.</p>
+        </div>
+        <div class="admin-profile">
+            <span>{{ admin.full_name[0] }}</span>
+            <div>
+                <strong>{{ admin.full_name }}</strong>
+                <small>{{ admin.role.replace("_", " ")|title }}</small>
+            </div>
+        </div>
+    </div>
+
+    <section class="admin-metrics mb-4">
+        <article class="admin-metric-card">
+            <span>Products</span>
+            <strong>{{ metrics.products }}</strong>
+            <small>Store catalogue</small>
+        </article>
+        <article class="admin-metric-card">
+            <span>Categories</span>
+            <strong>{{ metrics.categories }}</strong>
+            <small>Active organisation</small>
+        </article>
+        <article class="admin-metric-card">
+            <span>Customers</span>
+            <strong>{{ metrics.customers }}</strong>
+            <small>Registered shoppers</small>
+        </article>
+        <article class="admin-metric-card">
+            <span>Orders</span>
+            <strong>{{ metrics.orders }}</strong>
+            <small>Total order records</small>
+        </article>
+    </section>
+
+    <section class="admin-panel">
+        <div class="admin-panel-header">
+            <div>
+                <span class="admin-eyebrow">Latest activity</span>
+                <h2>Recent orders</h2>
+            </div>
+            <a href="/admin/orders">View all orders</a>
+        </div>
+
+        {% if recent_orders %}
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order</th>
+                        <th>Status</th>
+                        <th>Payment</th>
+                        <th>Total</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in recent_orders %}
+                    <tr>
+                        <td><strong>{{ order.order_number }}</strong></td>
+                        <td>{{ order.status.value|title }}</td>
+                        <td>{{ order.payment_status.value|title }}</td>
+                        <td>₹{{ "%.2f"|format(order.grand_total) }}</td>
+                        <td>{{ order.created_at.strftime("%d %b %Y") }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="admin-empty-state">
+            <span>Orders</span>
+            <h3>No orders yet</h3>
+            <p>New customer orders will appear here.</p>
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

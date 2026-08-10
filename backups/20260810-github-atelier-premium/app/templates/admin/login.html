@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Admin Login | Leaf</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="/static/css/admin.css?v=atelier-1"
+    >
+</head>
+
+<body class="admin-login-body">
+
+<main class="admin-login-shell">
+
+    <section class="admin-login-brand-panel">
+        <div class="admin-login-brand">
+            <span class="admin-brand-logo"><svg viewBox="0 0 24 24"><path d="M19.8 3.2C13.3 3.5 7.1 6.1 5 11.1c-1.2 2.8-.2 5.5 1.7 7.1 1.4-3.8 4.3-6.8 8.3-8.8-3.2 2.6-5.5 5.8-6.6 9.5 2.2.8 4.9.2 6.8-1.8 3.5-3.7 4.4-9.2 4.6-13.9Z"/></svg></span>
+
+            <div>
+                <strong>Leaf</strong>
+                <small>Store Administration</small>
+            </div>
+        </div>
+
+        <div class="admin-login-message">
+            <span>Secure Store Management</span>
+
+            <h1>
+                Manage products, customers and orders.
+            </h1>
+
+            <p>
+                Access the protected Leaf administration dashboard.
+            </p>
+        </div>
+
+        <div class="admin-security-note">
+            <span class="security-icon">✓</span> Protected administrative access
+        </div>
+    </section>
+
+    <section class="admin-login-form-panel">
+
+        <form
+            method="post"
+            action="/admin/login"
+            class="admin-login-form"
+            autocomplete="on"
+        >
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token }}"
+            >
+
+            <header>
+                <span class="admin-eyebrow">
+                    Welcome back
+                </span>
+
+                <h2>Admin Login</h2>
+
+                <p>
+                    Enter your authorised administrator credentials.
+                </p>
+            </header>
+
+            {% if error %}
+            <div
+                class="admin-alert admin-alert-danger"
+                role="alert"
+            >
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <label for="adminEmail">
+                Email address
+            </label>
+
+            <input
+                id="adminEmail"
+                name="email"
+                type="email"
+                placeholder="admin@leaf.ads-ai.in"
+                autocomplete="username"
+                required
+                autofocus
+            >
+
+            <label for="adminPassword">
+                Password
+            </label>
+
+            <input
+                id="adminPassword"
+                name="password"
+                type="password"
+                placeholder="Enter password"
+                autocomplete="current-password"
+                required
+            >
+
+            <button type="submit">
+                Sign in securely
+            </button>
+
+            <a
+                href="/"
+                class="admin-back-link"
+            >
+                Return to storefront
+            </a>
+        </form>
+
+    </section>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+{% extends "layouts/store_base.html" %}
+{% block title %}{{ 'Payment Pending' if order.payment_method == 'upi' else 'Order Confirmed' }} | Leaf{% endblock %}
+{% block content %}
+<section class="section confirmation-section"><div class="container"><div class="confirmation-card">
+{% if order.payment_method == 'upi' %}
+<span class="confirmation-icon pending-icon">⌛</span><span class="eyebrow">Payment pending</span><h1>Complete your UPI payment.</h1><p>Order <strong>{{ order.order_number }}</strong> is recorded. Pay exactly <strong>₹{{ "%.2f"|format(order.grand_total|float) }}</strong>; Leaf will confirm the payment separately.</p>
+{% if upi %}<div class="upi-payment-panel"><img src="{{ upi.qr_data_uri }}" alt="UPI QR code for order {{ order.order_number }}" class="upi-qr"><div class="upi-payment-copy"><span>Pay to</span><strong>{{ upi.payee_name }}</strong><code>{{ upi.vpa }}</code><a class="button button-primary" href="{{ upi.uri }}">Open UPI app</a><small>On desktop, scan the QR using any UPI app. On mobile, select “Open UPI app”.</small></div></div>{% endif %}
+<div class="payment-pending-note"><strong>Status: Payment Pending</strong><span>Do not pay twice. Your order will remain pending until the Leaf team verifies the payment outside the application.</span></div>
+{% else %}
+<span class="confirmation-icon">✓</span><span class="eyebrow">Order confirmed</span><h1>Thank you for your order.</h1><p>Your Cash on Delivery order <strong>{{ order.order_number }}</strong> has been placed successfully.</p>
+{% endif %}
+<div class="confirmation-details"><div><span>Order total</span><strong>₹{{ "%.2f"|format(order.grand_total|float) }}</strong></div><div><span>Payment</span><strong>{{ 'UPI · Pending confirmation' if order.payment_method == 'upi' else 'Cash on Delivery' }}</strong></div><div><span>Deliver to</span><strong>{{ order.shipping_address.city }}, {{ order.shipping_address.state }} – {{ order.shipping_address.pincode }}</strong></div></div>
+<a href="/shop" class="button button-secondary">Continue shopping</a>
+</div></div></section>
+{% endblock %}
