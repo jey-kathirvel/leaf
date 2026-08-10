@@ -2,8 +2,6 @@
 
 let deferredInstallPrompt = null;
 const pwaInstallButton = document.getElementById("pwaInstallButton");
-const pwaUpdateToast = document.getElementById("pwaUpdateToast");
-const pwaUpdateButton = document.getElementById("pwaUpdateButton");
 
 window.addEventListener("beforeinstallprompt", (event) => {
     event.preventDefault();
@@ -29,17 +27,16 @@ window.addEventListener("appinstalled", () => {
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
         navigator.serviceWorker.register("/service-worker.js").then((registration) => {
-            const offerUpdate = (worker) => {
-                if (!worker || !navigator.serviceWorker.controller || !pwaUpdateToast) return;
-                pwaUpdateToast.hidden = false;
-                if (pwaUpdateButton) pwaUpdateButton.onclick = () => worker.postMessage({type: "SKIP_WAITING"});
+            const activateWaitingWorker = (worker) => {
+                if (!worker || !navigator.serviceWorker.controller) return;
+                worker.postMessage({type: "SKIP_WAITING"});
             };
-            offerUpdate(registration.waiting);
+            activateWaitingWorker(registration.waiting);
             registration.addEventListener("updatefound", () => {
                 const worker = registration.installing;
                 if (!worker) return;
                 worker.addEventListener("statechange", () => {
-                    if (worker.state === "installed") offerUpdate(worker);
+                    if (worker.state === "installed") activateWaitingWorker(worker);
                 });
             });
         }).catch(() => {

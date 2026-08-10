@@ -55,4 +55,4 @@ def test_storefront_layout_declares_pwa_metadata() -> None:
     assert 'beforeinstallprompt' in script
     assert 'SKIP_WAITING' in script
     assert 'id="pwaInstallButton"' in template
-    assert 'id="pwaUpdateToast"' in template
+    assert 'id="pwaUpdateToast"' not in template
