@@ -1,7 +1,7 @@
 {% extends "layouts/store_base.html" %}
 {% block title %}Checkout | Leaf{% endblock %}
 {% block content %}
-<section class="catalogue-hero compact-hero"><div class="container"><span class="eyebrow"><span class="eyebrow-dot"></span> Secure checkout</span><h1>Delivery details</h1><p>Place your order with Cash on Delivery.</p></div></section>
+<section class="catalogue-hero compact-hero"><div class="container"><span class="eyebrow"><span class="eyebrow-dot"></span> Secure checkout</span><h1>Delivery details</h1><p>Confirm your details and choose COD or UPI.</p></div></section>
 <section class="section"><div class="container checkout-layout">
 <form method="post" action="/checkout" class="checkout-form">
 {% if error %}<div class="store-alert error">{{ error }}</div>{% endif %}

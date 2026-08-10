@@ -139,3 +139,22 @@ document
             mainProductImage.alt = thumbnail.dataset.galleryAlt || "Product image";
         });
     });
+
+const revealNodes = document.querySelectorAll(".reveal");
+if (revealNodes.length) {
+    if ("IntersectionObserver" in window) {
+        const revealObserver = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) return;
+                    entry.target.classList.add("is-visible");
+                    revealObserver.unobserve(entry.target);
+                });
+            },
+            { threshold: 0.16, rootMargin: "0px 0px -8% 0px" }
+        );
+        revealNodes.forEach((node) => revealObserver.observe(node));
+    } else {
+        revealNodes.forEach((node) => node.classList.add("is-visible"));
+    }
+}

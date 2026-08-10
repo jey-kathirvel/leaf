@@ -49,7 +49,7 @@ def test_storefront_layout_declares_pwa_metadata() -> None:
     template = Path("app/templates/layouts/store_base.html").read_text(encoding="utf-8")
     script = Path("app/static/js/store.js").read_text(encoding="utf-8")
     assert 'rel="manifest" href="/manifest.webmanifest"' in template
-    assert 'name="theme-color" content="#4f46e5"' in template
+    assert 'name="theme-color" content="#0D1A14"' in template
     assert 'rel="apple-touch-icon"' in template
     assert 'navigator.serviceWorker.register("/service-worker.js")' in script
     assert 'beforeinstallprompt' in script
