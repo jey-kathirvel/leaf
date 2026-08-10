@@ -6,8 +6,7 @@ cd "$ROOT"
 
 ./scripts/cloud-agent-postgres.sh
 
-if [[ ! -f .env ]]; then
-  cat > .env <<EOF
+cat > .env <<EOF
 APP_NAME=Leaf Online Store
 APP_ENV=development
 DEBUG=true
@@ -25,7 +24,6 @@ UPI_ENABLED=false
 UPI_VPA=merchant@bank
 UPI_PAYEE_NAME=Leaf Online Store
 EOF
-fi
 
 if [[ ! -d .venv ]]; then
   python3 -m venv .venv
