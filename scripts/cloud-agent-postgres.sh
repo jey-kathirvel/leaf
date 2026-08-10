@@ -29,6 +29,9 @@ role_exists="$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname=
 if [[ "${role_exists}" != "1" ]]; then
   sudo -u postgres psql -v ON_ERROR_STOP=1 -c \
     "CREATE USER ${DB_USER} WITH PASSWORD '${DB_PASS}';"
+else
+  sudo -u postgres psql -v ON_ERROR_STOP=1 -c \
+    "ALTER USER ${DB_USER} WITH PASSWORD '${DB_PASS}';"
 fi
 
 db_exists="$(sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='${DB_NAME}'" || true)"
