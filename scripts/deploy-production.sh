@@ -28,7 +28,11 @@ cd "$PATH_ON_SERVER"
 git fetch origin "$BRANCH"
 git checkout "$BRANCH"
 git pull origin "$BRANCH"
-.venv/bin/python -m pip install -r requirements.txt
+if [[ ! -d .venv ]]; then
+  python3 -m venv .venv
+fi
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/pip install -r requirements.txt
 .venv/bin/python -m alembic upgrade head
 .venv/bin/python -m pytest tests/ -q
 sudo systemctl restart "$SERVICE"
