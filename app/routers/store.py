@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.db.deps import get_db
 from app.models import Brand, Category, Product
+from app.services.offer_campaign_service import get_active_homepage_campaign
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,7 +52,12 @@ def home(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
         request,
         "store/home.html",
-        {**base_context(request), "featured_products": products, "categories": categories},
+        {
+            **base_context(request),
+            "featured_products": products,
+            "categories": categories,
+            "offer_campaign": get_active_homepage_campaign(db),
+        },
     )
 
 

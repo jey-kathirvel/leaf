@@ -71,3 +71,46 @@
     </div>
 </section>
 {% endblock %}
+
+{% block scripts %}
+{% if offer_campaign %}
+<div
+    id="homepageOfferModal"
+    class="homepage-offer-modal is-hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="homepageOfferTitle"
+    hidden
+    data-delay-seconds="{{ offer_campaign.delay_seconds }}"
+    data-auto-close-seconds="{{ offer_campaign.auto_close_seconds }}"
+>
+    <button type="button" class="homepage-offer-backdrop" data-offer-close aria-label="Close offer"></button>
+    <div class="homepage-offer-panel">
+        <button type="button" class="homepage-offer-close" data-offer-close aria-label="Close offer">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        {% if offer_campaign.title %}
+        <h2 id="homepageOfferTitle" class="homepage-offer-title">{{ offer_campaign.title }}</h2>
+        {% endif %}
+        {% if offer_campaign.message %}
+        <p class="homepage-offer-message">{{ offer_campaign.message }}</p>
+        {% endif %}
+        {% if offer_campaign.coupon_code %}
+        <div class="homepage-offer-coupon">
+            <span>Use code</span>
+            <strong id="homepageOfferCoupon">{{ offer_campaign.coupon_code }}</strong>
+            <button type="button" class="homepage-offer-copy" id="homepageOfferCopy">Copy</button>
+        </div>
+        {% endif %}
+        <iframe
+            class="homepage-offer-iframe"
+            src="{{ offer_campaign.iframe_url }}"
+            title="{{ offer_campaign.title or 'Special offer' }}"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+    </div>
+</div>
+<script src="/static/js/homepage-offer.js?v=1"></script>
+{% endif %}
+{% endblock %}

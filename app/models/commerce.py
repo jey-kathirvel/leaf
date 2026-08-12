@@ -983,3 +983,39 @@ class OrderStatusHistory(Base, TimestampMixin):
     note: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     order: Mapped["Order"] = relationship(back_populates="status_history")
+
+
+class HomepageOfferCampaign(Base, TimestampMixin):
+    __tablename__ = "homepage_offer_campaigns"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    title: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    coupon_code: Mapped[Optional[str]] = mapped_column(String(80), nullable=True)
+    iframe_url: Mapped[str] = mapped_column(String(1000), nullable=False, default="")
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default="false",
+    )
+    delay_seconds: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=5,
+        server_default="5",
+    )
+    auto_close_seconds: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=15,
+        server_default="15",
+    )
+    starts_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+    ends_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )

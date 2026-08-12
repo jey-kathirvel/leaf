@@ -523,3 +523,37 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 /* Legacy class bridges used by older templates */
 .fashion-card, .sunlit-store .fashion-card { all: unset; }
 .product-card.fashion-card { display: grid; }
+
+.homepage-offer-modal {
+    position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+}
+.homepage-offer-modal.is-hidden { display: none; }
+body.offer-modal-open { overflow: hidden; }
+.homepage-offer-backdrop {
+    position: absolute; inset: 0; border: 0; background: rgba(12, 18, 16, 0.62); cursor: pointer;
+}
+.homepage-offer-panel {
+    position: relative; z-index: 1; width: min(720px, 100%); max-height: min(88vh, 760px);
+    display: flex; flex-direction: column; gap: 12px; padding: 20px;
+    border-radius: 20px; background: #fff; box-shadow: var(--shadow);
+}
+.homepage-offer-close {
+    position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border: 0;
+    border-radius: 999px; background: rgba(12, 18, 16, 0.08); color: var(--ink); font-size: 24px; line-height: 1;
+    cursor: pointer;
+}
+.homepage-offer-title { margin: 0; font-size: 1.35rem; }
+.homepage-offer-message { margin: 0; color: var(--muted); }
+.homepage-offer-coupon {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px;
+    border-radius: 12px; background: var(--surface);
+}
+.homepage-offer-coupon strong { font-size: 1.1rem; letter-spacing: 0.08em; }
+.homepage-offer-copy {
+    border: 0; border-radius: 999px; padding: 6px 12px; background: var(--ink); color: #fff; font-weight: 600; cursor: pointer;
+}
+.homepage-offer-iframe {
+    width: 100%; min-height: 320px; height: min(52vh, 420px); border: 1px solid var(--line); border-radius: 14px; background: #f8f8f6;
+}
+

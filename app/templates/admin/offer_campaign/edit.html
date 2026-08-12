@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+{% block title %}Offer Campaign | Leaf Admin{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <p class="text-uppercase text-success fw-bold small mb-1">Marketing</p>
+        <h1 class="h3">Homepage offer campaign</h1>
+        <p class="text-muted">Configure the timed iframe popup shown on the storefront home page.</p>
+    </div>
+    {% if flash %}
+    <div class="alert alert-{{ flash.category }}">{{ flash.message }}</div>
+    {% endif %}
+    <form method="post" action="/admin/offer-campaign" class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Campaign title</label>
+                    <input class="form-control" name="title" value="{{ campaign.title or '' }}" maxlength="200" placeholder="Spring savings">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Coupon code</label>
+                    <input class="form-control" name="coupon_code" value="{{ campaign.coupon_code or '' }}" maxlength="80" placeholder="LEAF15">
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Short message</label>
+                    <textarea class="form-control" name="message" rows="2" placeholder="Extra 15% off your first order.">{{ campaign.message or '' }}</textarea>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">Offer iframe URL</label>
+                    <input class="form-control" name="iframe_url" type="url" value="{{ campaign.iframe_url or '' }}" placeholder="https://example.com/offer-embed">
+                    <div class="form-text">HTTPS URL embedded in the homepage popup. Required when the campaign is active.</div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Show delay (seconds)</label>
+                    <input class="form-control" name="delay_seconds" type="number" min="0" value="{{ campaign.delay_seconds }}">
+                    <div class="form-text">Default: 5 seconds after the home page loads.</div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Auto-close (seconds)</label>
+                    <input class="form-control" name="auto_close_seconds" type="number" min="1" value="{{ campaign.auto_close_seconds }}">
+                    <div class="form-text">Default: 15 seconds after the popup opens.</div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="is_active" id="offerCampaignActive" {% if campaign.is_active %}checked{% endif %}>
+                        <label class="form-check-label" for="offerCampaignActive">Campaign active on homepage</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Starts at <small class="text-muted">(optional)</small></label>
+                    <input class="form-control" name="starts_at" type="datetime-local" value="{{ campaign.starts_at.strftime('%Y-%m-%dT%H:%M') if campaign.starts_at else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Ends at <small class="text-muted">(optional)</small></label>
+                    <input class="form-control" name="ends_at" type="datetime-local" value="{{ campaign.ends_at.strftime('%Y-%m-%dT%H:%M') if campaign.ends_at else '' }}">
+                </div>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">Save campaign</button>
+                <a class="btn btn-outline-secondary" href="/">Preview storefront</a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

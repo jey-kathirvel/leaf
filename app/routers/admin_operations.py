@@ -8,7 +8,11 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 
 from app.db.deps import get_db
-from app.models import Category, Customer, Inventory, Order, Product
+from app.models import Category, Customer, HomepageOfferCampaign, Inventory, Order, Product
+from app.services.offer_campaign_service import (
+    get_or_create_campaign_settings,
+    is_valid_iframe_url,
+)
 from app.routers.admin_products import pop_flash, require_admin, set_flash
 
 
@@ -162,3 +166,79 @@ def customer_toggle(customer_id: int, request: Request, db: Session = Depends(ge
         db.commit()
         set_flash(request, f"Customer {'activated' if customer.is_active else 'deactivated'}.")
     return RedirectResponse(f"/admin/customers/{customer_id}", status_code=303)
+
+
+@router.get("/offer-campaign", response_class=HTMLResponse)
+def offer_campaign_page(request: Request, db: Session = Depends(get_db)):
+    if redirect := require_admin(request):
+        return redirect
+    campaign = get_or_create_campaign_settings(db)
+    return templates.TemplateResponse(
+        request,
+        "admin/offer_campaign/edit.html",
+        {"request": request, "campaign": campaign, "flash": pop_flash(request)},
+    )
+
+
+@router.post("/offer-campaign")
+def offer_campaign_update(
+    request: Request,
+    title: str = Form(""),
+    message: str = Form(""),
+    coupon_code: str = Form(""),
+    iframe_url: str = Form(""),
+    is_active: str = Form(""),
+    delay_seconds: int = Form(5),
+    auto_close_seconds: int = Form(15),
+    starts_at: str = Form(""),
+    ends_at: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    if redirect := require_admin(request):
+        return redirect
+
+    campaign = get_or_create_campaign_settings(db)
+    clean_url = iframe_url.strip()
+    clean_code = coupon_code.strip().upper()
+    active = is_active == "on"
+
+    if active and not clean_url:
+        set_flash(request, "Enter an iframe URL before activating the campaign.", "danger")
+        return RedirectResponse("/admin/offer-campaign", status_code=303)
+
+    if clean_url and not is_valid_iframe_url(clean_url):
+        set_flash(request, "Iframe URL must be a valid http or https address.", "danger")
+        return RedirectResponse("/admin/offer-campaign", status_code=303)
+
+    if delay_seconds < 0 or auto_close_seconds < 1:
+        set_flash(request, "Delay must be zero or more and auto-close must be at least 1 second.", "danger")
+        return RedirectResponse("/admin/offer-campaign", status_code=303)
+
+    campaign.title = title.strip() or None
+    campaign.message = message.strip() or None
+    campaign.coupon_code = clean_code or None
+    campaign.iframe_url = clean_url
+    campaign.is_active = active
+    campaign.delay_seconds = delay_seconds
+    campaign.auto_close_seconds = auto_close_seconds
+    campaign.starts_at = _parse_optional_datetime(starts_at)
+    campaign.ends_at = _parse_optional_datetime(ends_at)
+
+    db.commit()
+    set_flash(request, "Homepage offer campaign saved.")
+    return RedirectResponse("/admin/offer-campaign", status_code=303)
+
+
+def _parse_optional_datetime(value: str):
+    from datetime import datetime, timezone
+
+    clean = value.strip()
+    if not clean:
+        return None
+    try:
+        parsed = datetime.fromisoformat(clean)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed
