@@ -1,0 +1,72 @@
+{% extends "admin/base.html" %}
+{% block title %}Offer campaigns | Leaf Admin{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <p class="text-uppercase text-success fw-bold small mb-1">Marketing</p>
+            <h1 class="h3">Offer campaigns</h1>
+            <p class="text-muted">Manage homepage iframe popups, coupon codes, and checkout discounts.</p>
+        </div>
+        <a class="btn btn-primary" href="/admin/offer-campaigns/new">New campaign</a>
+    </div>
+    {% if flash %}
+    <div class="alert alert-{{ flash.category }}">{{ flash.message }}</div>
+    {% endif %}
+    <div class="d-grid gap-3">
+        {% for campaign, in_schedule in campaign_rows %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between gap-2 align-items-start">
+                    <div>
+                        <h2 class="h5 mb-1">{{ campaign.title or "Untitled campaign" }}</h2>
+                        <p class="text-muted small mb-2">{{ campaign.message or "No message set." }}</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if campaign.is_active %}
+                            <span class="badge bg-success-subtle text-success">Homepage active</span>
+                            {% else %}
+                            <span class="badge bg-secondary-subtle text-secondary">Homepage off</span>
+                            {% endif %}
+                            {% if in_schedule %}
+                            <span class="badge bg-info-subtle text-info">In schedule</span>
+                            {% else %}
+                            <span class="badge bg-warning-subtle text-warning">Outside schedule</span>
+                            {% endif %}
+                            {% if campaign.coupon_code %}
+                            <span class="badge bg-light text-dark border">Code: {{ campaign.coupon_code }}</span>
+                            {% endif %}
+                            {% if campaign.discount_type and campaign.discount_value %}
+                            <span class="badge bg-light text-dark border">
+                                {% if campaign.discount_type.value == 'percent' %}
+                                {{ campaign.discount_value }}% off
+                                {% else %}
+                                ₹{{ "%.2f"|format(campaign.discount_value|float) }} off
+                                {% endif %}
+                            </span>
+                            {% endif %}
+                            <span class="badge bg-light text-dark border">Priority {{ campaign.priority }}</span>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-primary btn-sm" href="/admin/offer-campaigns/{{ campaign.id }}">Edit</a>
+                        <form method="post" action="/admin/offer-campaigns/{{ campaign.id }}/delete" onsubmit="return confirm('Delete this campaign?');">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="small text-muted mt-3">
+                    Delay {{ campaign.delay_seconds }}s · Auto-close {{ campaign.auto_close_seconds }}s
+                    {% if campaign.iframe_url %} · Iframe configured{% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card border-0 shadow-sm">
+            <div class="card-body py-5 text-center text-muted">
+                No campaigns yet. Create one to show a homepage popup or checkout coupon.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

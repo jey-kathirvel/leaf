@@ -20,6 +20,7 @@ from app.models import (
     PaymentStatus,
     Product,
 )
+from app.services.coupon_service import compute_discount_amount, find_coupon_campaign
 
 
 MONEY = Decimal("0.01")
@@ -119,7 +120,7 @@ def remove_item(db: Session, cart: Cart, item_id: int) -> Cart:
     return load_cart(db, cart.session_token)
 
 
-def cart_totals(cart: Cart | None) -> dict[str, Decimal | int]:
+def cart_totals(cart: Cart | None, coupon_code: str | None = None, db: Session | None = None) -> dict[str, Decimal | int | str | None]:
     items = cart.items if cart else []
     subtotal = money(sum((item.unit_price * item.quantity for item in items), Decimal("0")))
     tax = money(
@@ -134,14 +135,38 @@ def cart_totals(cart: Cart | None) -> dict[str, Decimal | int]:
             Decimal("0"),
         )
     )
-    return {"subtotal": subtotal, "tax": tax, "shipping": Decimal("0.00"), "grand_total": subtotal, "count": sum(item.quantity for item in items)}
+    discount = Decimal("0.00")
+    applied_code: str | None = None
+    if coupon_code and db is not None and subtotal > Decimal("0"):
+        campaign = find_coupon_campaign(db, coupon_code)
+        if campaign is not None:
+            discount = compute_discount_amount(campaign, subtotal)
+            if discount > Decimal("0"):
+                applied_code = campaign.coupon_code
+
+    grand_total = money(max(subtotal - discount, Decimal("0")))
+    return {
+        "subtotal": subtotal,
+        "tax": tax,
+        "shipping": Decimal("0.00"),
+        "discount": discount,
+        "grand_total": grand_total,
+        "count": sum(item.quantity for item in items),
+        "coupon_code": applied_code,
+    }
 
 
 def cart_allows_cod(cart: Cart | None) -> bool:
     return bool(cart and cart.items) and all(item.product.allow_cod for item in cart.items)
 
 
-def place_order(db: Session, cart: Cart, customer_data: dict[str, str], payment_method: str) -> Order:
+def place_order(
+    db: Session,
+    cart: Cart,
+    customer_data: dict[str, str],
+    payment_method: str,
+    coupon_code: str | None = None,
+) -> Order:
     if not cart.items:
         raise CartError("Your cart is empty.")
     if payment_method not in {"cash_on_delivery", "upi"}:
@@ -194,7 +219,7 @@ def place_order(db: Session, cart: Cart, customer_data: dict[str, str], payment_
     db.add(address)
     db.flush()
 
-    totals = cart_totals(cart)
+    totals = cart_totals(cart, coupon_code=coupon_code, db=db)
     order = Order(
         order_number=f"LF{datetime.now(timezone.utc):%y%m%d}{token_urlsafe(5).replace('-', '').replace('_', '').upper()[:7]}",
         customer_id=customer.id,
@@ -206,7 +231,8 @@ def place_order(db: Session, cart: Cart, customer_data: dict[str, str], payment_
         subtotal=totals["subtotal"],
         tax_amount=totals["tax"],
         shipping_amount=totals["shipping"],
-        discount_amount=Decimal("0.00"),
+        discount_amount=totals["discount"],
+        coupon_code=totals["coupon_code"],
         grand_total=totals["grand_total"],
         customer_notes=customer_data.get("notes", "").strip() or None,
     )
@@ -233,5 +259,5 @@ def place_order(db: Session, cart: Cart, customer_data: dict[str, str], payment_
     return order
 
 
-def place_cod_order(db: Session, cart: Cart, customer_data: dict[str, str]) -> Order:
-    return place_order(db, cart, customer_data, "cash_on_delivery")
+def place_cod_order(db: Session, cart: Cart, customer_data: dict[str, str], coupon_code: str | None = None) -> Order:
+    return place_order(db, cart, customer_data, "cash_on_delivery", coupon_code=coupon_code)

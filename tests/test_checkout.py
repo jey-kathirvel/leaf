@@ -1,10 +1,12 @@
+from decimal import Decimal
+
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
 from app.db.deps import get_db
 from app.main import app
 from app.core.config import settings
-from app.models import Category, Cart, Inventory, Order, PaymentStatus, Product
+from app.models import Category, Cart, CouponDiscountType, HomepageOfferCampaign, Inventory, Order, PaymentStatus, Product
 from app.services.product_service import ProductService
 from tests.test_product_service import database_session, payload
 
@@ -156,5 +158,76 @@ def test_manual_upi_checkout_stays_payment_pending() -> None:
         assert order.payment_status == PaymentStatus.PENDING
     finally:
         settings.UPI_ENABLED, settings.UPI_VPA, settings.UPI_PAYEE_NAME = original_enabled, original_vpa, original_name
+        app.dependency_overrides.clear()
+        db.close()
+
+
+def test_checkout_applies_percent_coupon_discount() -> None:
+    client, db = checkout_client()
+    try:
+        db.add(Category(name="Tea", slug="tea"))
+        db.add(
+            HomepageOfferCampaign(
+                coupon_code="SAVE10",
+                discount_type=CouponDiscountType.PERCENT,
+                discount_value=Decimal("10"),
+                iframe_url="",
+                is_active=False,
+            )
+        )
+        db.commit()
+        product = ProductService.create_product(db, payload(opening_stock=5))
+        client.post(f"/cart/items/{product.id}")
+
+        apply = client.post("/checkout/coupon", data={"coupon_code": "save10"}, follow_redirects=False)
+        assert apply.status_code == 303
+
+        checkout = client.get("/checkout")
+        assert "SAVE10" in checkout.text
+        assert "Coupon discount" in checkout.text
+
+        response = client.post(
+            "/checkout",
+            data={
+                "full_name": "Leaf Customer",
+                "email": "coupon@example.com",
+                "mobile": "9876543210",
+                "address_line1": "12 Green Street",
+                "address_line2": "",
+                "landmark": "",
+                "city": "Chennai",
+                "state": "Tamil Nadu",
+                "pincode": "600001",
+                "notes": "",
+                "payment_method": "cash_on_delivery",
+            },
+            follow_redirects=True,
+        )
+
+        order = db.scalar(select(Order))
+        expected_discount = (product.price * Decimal("10") / Decimal("100")).quantize(Decimal("0.01"))
+        assert response.status_code == 200
+        assert order.coupon_code == "SAVE10"
+        assert order.discount_amount == expected_discount
+        assert order.grand_total == product.price - expected_discount
+    finally:
+        app.dependency_overrides.clear()
+        db.close()
+
+
+def test_checkout_rejects_invalid_coupon() -> None:
+    client, db = checkout_client()
+    try:
+        db.add(Category(name="Tea", slug="tea"))
+        db.commit()
+        product = ProductService.create_product(db, payload())
+        client.post(f"/cart/items/{product.id}")
+
+        apply = client.post("/checkout/coupon", data={"coupon_code": "NOTREAL"}, follow_redirects=False)
+        assert apply.status_code == 303
+
+        checkout = client.get("/checkout")
+        assert "not valid" in checkout.text.lower() or "That coupon" in checkout.text
+    finally:
         app.dependency_overrides.clear()
         db.close()

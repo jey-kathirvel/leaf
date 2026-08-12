@@ -344,6 +344,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .centered-link { display: block; margin-top: 14px; text-align: center; }
 .store-alert { padding: 14px 18px; margin-bottom: 16px; border-radius: 14px; font-weight: 650; }
 .store-alert.error { border: 1px solid #f0c8c5; color: #7f2f2a; background: #fff4f3; }
+.store-alert.success { border: 1px solid #c8e6d8; color: #1f5c40; background: #f2fbf6; }
 .checkout-card { padding: 24px; }
 .checkout-card h2 { margin: 0 0 18px; font-size: 1.15rem; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -526,7 +527,8 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 
 .homepage-offer-modal {
     position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center;
-    padding: 20px;
+    padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right))
+        max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
 }
 .homepage-offer-modal.is-hidden { display: none; }
 body.offer-modal-open { overflow: hidden; }
@@ -534,17 +536,18 @@ body.offer-modal-open { overflow: hidden; }
     position: absolute; inset: 0; border: 0; background: rgba(12, 18, 16, 0.62); cursor: pointer;
 }
 .homepage-offer-panel {
-    position: relative; z-index: 1; width: min(720px, 100%); max-height: min(88vh, 760px);
-    display: flex; flex-direction: column; gap: 12px; padding: 20px;
+    position: relative; z-index: 1; width: min(720px, 100%); max-height: min(92vh, 760px);
+    display: flex; flex-direction: column; gap: 12px; padding: 16px;
     border-radius: 20px; background: #fff; box-shadow: var(--shadow);
+    overflow: hidden;
 }
 .homepage-offer-close {
-    position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border: 0;
+    position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border: 0;
     border-radius: 999px; background: rgba(12, 18, 16, 0.08); color: var(--ink); font-size: 24px; line-height: 1;
     cursor: pointer;
 }
-.homepage-offer-title { margin: 0; font-size: 1.35rem; }
-.homepage-offer-message { margin: 0; color: var(--muted); }
+.homepage-offer-title { margin: 0; font-size: clamp(1.1rem, 2.5vw, 1.35rem); padding-right: 40px; }
+.homepage-offer-message { margin: 0; color: var(--muted); font-size: clamp(0.9rem, 2.2vw, 1rem); }
 .homepage-offer-coupon {
     display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 12px;
     border-radius: 12px; background: var(--surface);
@@ -554,6 +557,46 @@ body.offer-modal-open { overflow: hidden; }
     border: 0; border-radius: 999px; padding: 6px 12px; background: var(--ink); color: #fff; font-weight: 600; cursor: pointer;
 }
 .homepage-offer-iframe {
-    width: 100%; min-height: 320px; height: min(52vh, 420px); border: 1px solid var(--line); border-radius: 14px; background: #f8f8f6;
+    width: 100%; flex: 1 1 auto; min-height: 200px;
+    height: clamp(220px, 52vh, 420px); max-height: 60vh;
+    border: 1px solid var(--line); border-radius: 14px; background: #f8f8f6;
+}
+
+@media (max-width: 640px) {
+    .homepage-offer-modal {
+        padding: 0;
+        align-items: stretch;
+    }
+    .homepage-offer-panel {
+        width: 100%; max-height: 100%;
+        height: 100%; border-radius: 0; padding: max(14px, env(safe-area-inset-top)) 14px max(14px, env(safe-area-inset-bottom));
+    }
+    .homepage-offer-iframe {
+        min-height: 0;
+        height: auto;
+        max-height: none;
+        flex: 1 1 auto;
+        aspect-ratio: 16 / 10;
+    }
+    .homepage-offer-close {
+        top: max(10px, env(safe-area-inset-top));
+        right: max(10px, env(safe-area-inset-right));
+    }
+}
+
+.coupon-form {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 16px;
+}
+.coupon-form label { display: grid; gap: 6px; flex: 1 1 180px; }
+.coupon-form input {
+    border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: inherit;
+}
+.coupon-applied {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 12px; border-radius: 12px; background: var(--surface); margin-bottom: 16px;
+}
+.coupon-applied strong { letter-spacing: 0.06em; }
+.coupon-remove {
+    border: 0; background: transparent; color: var(--muted); text-decoration: underline; cursor: pointer; font: inherit;
 }
 

@@ -3,8 +3,22 @@
 {% block content %}
 <section class="catalogue-hero compact-hero"><div class="container"><span class="eyebrow"><span class="eyebrow-dot"></span> Secure checkout</span><h1>Delivery details</h1><p>Confirm your details and choose COD or UPI.</p></div></section>
 <section class="section"><div class="container checkout-layout">
-<form method="post" action="/checkout" class="checkout-form">
+<div class="checkout-form">
 {% if error %}<div class="store-alert error">{{ error }}</div>{% endif %}
+{% if coupon_message %}<div class="store-alert success">{{ coupon_message }}</div>{% endif %}
+{% if coupon_error %}<div class="store-alert error">{{ coupon_error }}</div>{% endif %}
+<div class="checkout-card"><h2>Coupon</h2>
+{% if applied_coupon %}
+<div class="coupon-applied"><span>Coupon <strong>{{ applied_coupon }}</strong> applied</span>
+<form method="post" action="/checkout/coupon/remove"><button type="submit" class="coupon-remove">Remove</button></form></div>
+{% else %}
+<form method="post" action="/checkout/coupon" class="coupon-form">
+<label>Coupon code<input name="coupon_code" placeholder="Enter code" maxlength="80" autocomplete="off"></label>
+<button type="submit" class="button button-secondary">Apply coupon</button>
+</form>
+{% endif %}
+</div>
+<form method="post" action="/checkout">
 <div class="checkout-card"><h2>Contact</h2><div class="form-grid"><label class="wide">Full name<input name="full_name" required minlength="2" value="{{ form.get('full_name', '') }}" autocomplete="name"></label><label>Email address<input name="email" type="email" required value="{{ form.get('email', '') }}" autocomplete="email"></label><label>Mobile number<input name="mobile" inputmode="numeric" required maxlength="10" value="{{ form.get('mobile', '') }}" autocomplete="tel"></label></div></div>
 <div class="checkout-card"><h2>Delivery address</h2><div class="form-grid"><label class="wide">Address line 1<input name="address_line1" required value="{{ form.get('address_line1', '') }}" autocomplete="address-line1"></label><label class="wide">Address line 2 <small>(optional)</small><input name="address_line2" value="{{ form.get('address_line2', '') }}" autocomplete="address-line2"></label><label>Landmark <small>(optional)</small><input name="landmark" value="{{ form.get('landmark', '') }}"></label><label>City<input name="city" required value="{{ form.get('city', '') }}" autocomplete="address-level2"></label><label>State<input name="state" required value="{{ form.get('state', '') }}" autocomplete="address-level1"></label><label>Pincode<input name="pincode" required inputmode="numeric" maxlength="6" value="{{ form.get('pincode', '') }}" autocomplete="postal-code"></label><label class="wide">Order note <small>(optional)</small><textarea name="notes" rows="3">{{ form.get('notes', '') }}</textarea></label></div></div>
 <div class="checkout-card"><h2>Payment</h2>
@@ -13,6 +27,9 @@
 </div>
 <button type="submit" class="button button-primary full-button checkout-submit">Continue · ₹{{ "%.2f"|format(totals.grand_total|float) }}</button>
 </form>
-<aside class="order-summary checkout-summary"><h2>Your order</h2>{% for item in cart.items %}<div class="checkout-line"><span>{{ item.product.name }} × {{ item.quantity }}</span><strong>₹{{ "%.2f"|format((item.unit_price * item.quantity)|float) }}</strong></div>{% endfor %}<div><span>Included GST</span><span>₹{{ "%.2f"|format(totals.tax|float) }}</span></div><div><span>Shipping</span><span>Free</span></div><div class="summary-total"><span>Total</span><strong>₹{{ "%.2f"|format(totals.grand_total|float) }}</strong></div><p class="summary-note">Inventory is checked again when you place the order.</p></aside>
+</div>
+<aside class="order-summary checkout-summary"><h2>Your order</h2>{% for item in cart.items %}<div class="checkout-line"><span>{{ item.product.name }} × {{ item.quantity }}</span><strong>₹{{ "%.2f"|format((item.unit_price * item.quantity)|float) }}</strong></div>{% endfor %}<div><span>Included GST</span><span>₹{{ "%.2f"|format(totals.tax|float) }}</span></div>
+{% if totals.discount > 0 %}<div><span>Coupon discount</span><span>-₹{{ "%.2f"|format(totals.discount|float) }}</span></div>{% endif %}
+<div><span>Shipping</span><span>Free</span></div><div class="summary-total"><span>Total</span><strong>₹{{ "%.2f"|format(totals.grand_total|float) }}</strong></div><p class="summary-note">Inventory is checked again when you place the order.</p></aside>
 </div></section>
 {% endblock %}

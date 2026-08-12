@@ -29,43 +29,45 @@ def is_valid_iframe_url(url: str) -> bool:
     return bool(parsed.netloc)
 
 
-def get_active_homepage_campaign(db: Session) -> HomepageOfferCampaign | None:
-    campaign = db.scalar(
-        select(HomepageOfferCampaign)
-        .where(HomepageOfferCampaign.is_active.is_(True))
-        .order_by(HomepageOfferCampaign.updated_at.desc())
-        .limit(1)
-    )
-    if campaign is None or not campaign.iframe_url.strip():
-        return None
-    if not is_valid_iframe_url(campaign.iframe_url):
-        return None
-
+def campaign_within_schedule(campaign: HomepageOfferCampaign) -> bool:
     now = utc_now()
     starts_at = _as_utc(campaign.starts_at)
     ends_at = _as_utc(campaign.ends_at)
     if starts_at is not None and now < starts_at:
-        return None
+        return False
     if ends_at is not None and now > ends_at:
-        return None
-    return campaign
+        return False
+    return True
 
 
-def get_or_create_campaign_settings(db: Session) -> HomepageOfferCampaign:
-    campaign = db.scalar(
-        select(HomepageOfferCampaign).order_by(HomepageOfferCampaign.id.asc()).limit(1)
+def get_active_homepage_campaign(db: Session) -> HomepageOfferCampaign | None:
+    campaigns = db.scalars(
+        select(HomepageOfferCampaign)
+        .where(HomepageOfferCampaign.is_active.is_(True))
+        .order_by(HomepageOfferCampaign.priority.desc(), HomepageOfferCampaign.updated_at.desc())
+    ).all()
+    for campaign in campaigns:
+        if not campaign.iframe_url.strip():
+            continue
+        if not is_valid_iframe_url(campaign.iframe_url):
+            continue
+        if not campaign_within_schedule(campaign):
+            continue
+        return campaign
+    return None
+
+
+def list_campaigns(db: Session) -> list[HomepageOfferCampaign]:
+    return list(
+        db.scalars(
+            select(HomepageOfferCampaign)
+            .order_by(HomepageOfferCampaign.priority.desc(), HomepageOfferCampaign.id.desc())
+        ).all()
     )
-    if campaign is None:
-        campaign = HomepageOfferCampaign(
-            iframe_url="",
-            is_active=False,
-            delay_seconds=5,
-            auto_close_seconds=15,
-        )
-        db.add(campaign)
-        db.commit()
-        db.refresh(campaign)
-    return campaign
+
+
+def get_campaign(db: Session, campaign_id: int) -> HomepageOfferCampaign | None:
+    return db.get(HomepageOfferCampaign, campaign_id)
 
 
 def parse_campaign_schedule_input(value: str) -> datetime | None:
@@ -87,3 +89,12 @@ def format_campaign_schedule_for_input(value: datetime | None) -> str:
     if value.tzinfo is None:
         value = value.replace(tzinfo=timezone.utc)
     return value.astimezone(CAMPAIGN_SCHEDULE_TZ).strftime("%Y-%m-%dT%H:%M")
+
+
+def parse_discount_type(value: str) -> str | None:
+    clean = value.strip().lower()
+    if clean in {"", "none"}:
+        return None
+    if clean in {"percent", "fixed"}:
+        return clean
+    return None

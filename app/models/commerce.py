@@ -23,6 +23,11 @@ class AddressType(str, enum.Enum):
     BILLING = "billing"
 
 
+class CouponDiscountType(str, enum.Enum):
+    PERCENT = "percent"
+    FIXED = "fixed"
+
+
 class CartStatus(str, enum.Enum):
     ACTIVE = "active"
     CONVERTED = "converted"
@@ -831,6 +836,11 @@ class Order(Base, TimestampMixin):
         server_default="0.00",
     )
 
+    coupon_code: Mapped[Optional[str]] = mapped_column(
+        String(80),
+        nullable=True,
+    )
+
     shipping_amount: Mapped[Decimal] = mapped_column(
         Numeric(12, 2),
         nullable=False,
@@ -1017,5 +1027,26 @@ class HomepageOfferCampaign(Base, TimestampMixin):
     )
     ends_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),
+        nullable=True,
+    )
+    priority: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default="0",
+    )
+    discount_type: Mapped[Optional[CouponDiscountType]] = mapped_column(
+        Enum(
+            CouponDiscountType,
+            name="coupon_discount_type_enum",
+        ),
+        nullable=True,
+    )
+    discount_value: Mapped[Optional[Decimal]] = mapped_column(
+        Numeric(12, 2),
+        nullable=True,
+    )
+    min_order_amount: Mapped[Optional[Decimal]] = mapped_column(
+        Numeric(12, 2),
         nullable=True,
     )

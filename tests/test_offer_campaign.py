@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 
 from sqlalchemy import select
 
 from app.main import app
-from app.models import HomepageOfferCampaign
+from app.models import CouponDiscountType, HomepageOfferCampaign
 from app.services.offer_campaign_service import get_active_homepage_campaign
 from tests.test_admin_operations import authenticated_admin_client
 from tests.test_storefront import close_storefront_client, storefront_client
@@ -72,15 +73,43 @@ def test_offer_campaign_hidden_outside_schedule() -> None:
         close_storefront_client(db)
 
 
-def test_admin_offer_campaign_page_and_update() -> None:
+def test_homepage_uses_higher_priority_campaign() -> None:
+    client, db = storefront_client()
+    try:
+        db.add_all(
+            [
+                HomepageOfferCampaign(
+                    title="Low priority",
+                    iframe_url="https://example.com/low",
+                    is_active=True,
+                    priority=1,
+                ),
+                HomepageOfferCampaign(
+                    title="High priority",
+                    iframe_url="https://example.com/high",
+                    is_active=True,
+                    priority=10,
+                ),
+            ]
+        )
+        db.commit()
+
+        campaign = get_active_homepage_campaign(db)
+        assert campaign is not None
+        assert campaign.iframe_url == "https://example.com/high"
+    finally:
+        close_storefront_client(db)
+
+
+def test_admin_offer_campaign_dashboard_and_create() -> None:
     client, db = authenticated_admin_client()
     try:
-        page = client.get("/admin/offer-campaign")
+        page = client.get("/admin/offer-campaigns")
         assert page.status_code == 200
-        assert "Homepage offer campaign" in page.text
+        assert "Offer campaigns" in page.text
 
         saved = client.post(
-            "/admin/offer-campaign",
+            "/admin/offer-campaigns",
             data={
                 "title": "Launch Offer",
                 "message": "Limited time savings.",
@@ -91,6 +120,10 @@ def test_admin_offer_campaign_page_and_update() -> None:
                 "auto_close_seconds": 15,
                 "starts_at": "",
                 "ends_at": "",
+                "priority": 5,
+                "discount_type": "percent",
+                "discount_value": "10",
+                "min_order_amount": "",
             },
             follow_redirects=False,
         )
@@ -100,9 +133,8 @@ def test_admin_offer_campaign_page_and_update() -> None:
         assert campaign is not None
         assert campaign.title == "Launch Offer"
         assert campaign.coupon_code == "LAUNCH10"
-        assert campaign.iframe_url == "https://example.com/embed"
-        assert campaign.is_active is True
+        assert campaign.discount_type == CouponDiscountType.PERCENT
+        assert campaign.discount_value == Decimal("10")
     finally:
         app.dependency_overrides.clear()
         db.close()
-

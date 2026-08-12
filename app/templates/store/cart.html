@@ -12,7 +12,11 @@
 <form method="post" action="/cart/items/{{ item.id }}/update" class="quantity-form"><label for="quantity-{{ item.id }}">Quantity</label><input id="quantity-{{ item.id }}" name="quantity" type="number" min="0" max="99" value="{{ item.quantity }}"><button type="submit">Update</button></form>
 <div class="cart-line-total"><strong>₹{{ "%.2f"|format((item.unit_price * item.quantity)|float) }}</strong><form method="post" action="/cart/items/{{ item.id }}/remove"><button class="text-button" type="submit">Remove</button></form></div>
 </article>{% endfor %}</div>
-<aside class="order-summary"><h2>Order summary</h2><div><span>Subtotal</span><strong>₹{{ "%.2f"|format(totals.subtotal|float) }}</strong></div><div><span>Included GST</span><span>₹{{ "%.2f"|format(totals.tax|float) }}</span></div><div><span>Shipping</span><span>Free</span></div><div class="summary-total"><span>Total</span><strong>₹{{ "%.2f"|format(totals.grand_total|float) }}</strong></div><a href="/checkout" class="button button-primary full-button">Proceed to checkout</a><a href="/shop" class="text-link centered-link">Continue shopping</a></aside></div>
+<aside class="order-summary"><h2>Order summary</h2><div><span>Subtotal</span><strong>₹{{ "%.2f"|format(totals.subtotal|float) }}</strong></div><div><span>Included GST</span><span>₹{{ "%.2f"|format(totals.tax|float) }}</span></div>
+{% if totals.discount > 0 %}<div><span>Coupon ({{ applied_coupon }})</span><span>-₹{{ "%.2f"|format(totals.discount|float) }}</span></div>{% endif %}
+<div><span>Shipping</span><span>Free</span></div><div class="summary-total"><span>Total</span><strong>₹{{ "%.2f"|format(totals.grand_total|float) }}</strong></div>
+<form method="post" action="/checkout/coupon" class="coupon-form"><label>Coupon<input name="coupon_code" placeholder="Code" maxlength="80"></label><button type="submit" class="button button-secondary">Apply</button></form>
+<a href="/checkout" class="button button-primary full-button">Proceed to checkout</a><a href="/shop" class="text-link centered-link">Continue shopping</a></aside></div>
 {% else %}<div class="catalog-empty cart-empty"><strong>Your cart is empty.</strong><span>Browse the Leaf catalogue and add something you love.</span><a href="/shop" class="button button-primary">Start shopping</a></div>{% endif %}
 </div></section>
 {% endblock %}
