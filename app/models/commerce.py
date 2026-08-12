@@ -1039,6 +1039,7 @@ class HomepageOfferCampaign(Base, TimestampMixin):
         Enum(
             CouponDiscountType,
             name="coupon_discount_type_enum",
+            values_callable=lambda enum_cls: [member.value for member in enum_cls],
         ),
         nullable=True,
     )

@@ -135,6 +135,31 @@ def test_admin_offer_campaign_dashboard_and_create() -> None:
         assert campaign.coupon_code == "LAUNCH10"
         assert campaign.discount_type == CouponDiscountType.PERCENT
         assert campaign.discount_value == Decimal("10")
+
+        updated = client.post(
+            f"/admin/offer-campaigns/{campaign.id}",
+            data={
+                "title": "Launch Offer",
+                "message": "Limited time savings.",
+                "coupon_code": "launch10",
+                "iframe_url": "https://example.com/embed",
+                "is_active": "on",
+                "delay_seconds": 5,
+                "auto_close_seconds": 15,
+                "starts_at": "",
+                "ends_at": "",
+                "priority": 5,
+                "discount_type": "fixed",
+                "discount_value": "25",
+                "min_order_amount": "100",
+            },
+            follow_redirects=False,
+        )
+        assert updated.status_code == 303
+        db.refresh(campaign)
+        assert campaign.discount_type == CouponDiscountType.FIXED
+        assert campaign.discount_value == Decimal("25")
+        assert campaign.min_order_amount == Decimal("100")
     finally:
         app.dependency_overrides.clear()
         db.close()
