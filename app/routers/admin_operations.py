@@ -10,8 +10,10 @@ from sqlalchemy.orm import Session, selectinload
 from app.db.deps import get_db
 from app.models import Category, Customer, HomepageOfferCampaign, Inventory, Order, Product
 from app.services.offer_campaign_service import (
+    format_campaign_schedule_for_input,
     get_or_create_campaign_settings,
     is_valid_iframe_url,
+    parse_campaign_schedule_input,
 )
 from app.routers.admin_products import pop_flash, require_admin, set_flash
 
@@ -176,7 +178,13 @@ def offer_campaign_page(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
         request,
         "admin/offer_campaign/edit.html",
-        {"request": request, "campaign": campaign, "flash": pop_flash(request)},
+        {
+            "request": request,
+            "campaign": campaign,
+            "starts_at_local": format_campaign_schedule_for_input(campaign.starts_at),
+            "ends_at_local": format_campaign_schedule_for_input(campaign.ends_at),
+            "flash": pop_flash(request),
+        },
     )
 
 
@@ -221,24 +229,9 @@ def offer_campaign_update(
     campaign.is_active = active
     campaign.delay_seconds = delay_seconds
     campaign.auto_close_seconds = auto_close_seconds
-    campaign.starts_at = _parse_optional_datetime(starts_at)
-    campaign.ends_at = _parse_optional_datetime(ends_at)
+    campaign.starts_at = parse_campaign_schedule_input(starts_at)
+    campaign.ends_at = parse_campaign_schedule_input(ends_at)
 
     db.commit()
     set_flash(request, "Homepage offer campaign saved.")
     return RedirectResponse("/admin/offer-campaign", status_code=303)
-
-
-def _parse_optional_datetime(value: str):
-    from datetime import datetime, timezone
-
-    clean = value.strip()
-    if not clean:
-        return None
-    try:
-        parsed = datetime.fromisoformat(clean)
-    except ValueError:
-        return None
-    if parsed.tzinfo is None:
-        return parsed.replace(tzinfo=timezone.utc)
-    return parsed

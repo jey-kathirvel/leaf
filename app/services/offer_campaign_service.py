@@ -1,10 +1,13 @@
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from urllib.parse import urlparse
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.models import HomepageOfferCampaign
+
+CAMPAIGN_SCHEDULE_TZ = ZoneInfo("Asia/Kolkata")
 
 
 def utc_now() -> datetime:
@@ -63,3 +66,24 @@ def get_or_create_campaign_settings(db: Session) -> HomepageOfferCampaign:
         db.commit()
         db.refresh(campaign)
     return campaign
+
+
+def parse_campaign_schedule_input(value: str) -> datetime | None:
+    clean = value.strip()
+    if not clean:
+        return None
+    try:
+        parsed = datetime.fromisoformat(clean)
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=CAMPAIGN_SCHEDULE_TZ)
+    return parsed.astimezone(timezone.utc)
+
+
+def format_campaign_schedule_for_input(value: datetime | None) -> str:
+    if value is None:
+        return ""
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.astimezone(CAMPAIGN_SCHEDULE_TZ).strftime("%Y-%m-%dT%H:%M")
