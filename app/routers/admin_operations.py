@@ -1,7 +1,8 @@
 import re
 
-from fastapi import APIRouter, Depends, Form, Request, UploadFile, status
+from fastapi import APIRouter, Depends, Form, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
+from starlette.datastructures import UploadFile
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, or_, select
 from sqlalchemy.exc import IntegrityError
