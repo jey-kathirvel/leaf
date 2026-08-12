@@ -196,7 +196,7 @@ def test_public_pages_use_https_safe_root_relative_assets() -> None:
 
     assert storefront.status_code == 200
     assert login.status_code == 200
-    assert 'href="/static/css/store.css?v=atelier-7"' in storefront.text
+    assert 'href="/static/css/store.css?v=atelier-8"' in storefront.text
     assert 'src="/static/js/store.js?v=atelier-2"' in storefront.text
     assert '/static/images/leaf-fashion-hero.png' in Path("app/static/css/store.css").read_text(encoding="utf-8")
     assert 'href="/static/css/admin.css?v=atelier-1"' in login.text

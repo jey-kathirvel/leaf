@@ -256,15 +256,17 @@
             <span class="homepage-offer-timer-dot" aria-hidden="true"></span>
             Closes in <strong id="homepageOfferTimerValue">0</strong>s · tap × to dismiss
         </p>
-        <iframe
-            class="homepage-offer-iframe"
-            src="{{ offer_campaign.iframe_url }}"
-            title="{{ offer_campaign.title or 'Special offer' }}"
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
+        <div class="homepage-offer-iframe-wrap">
+            <iframe
+                class="homepage-offer-iframe"
+                src="{{ offer_campaign.iframe_url }}"
+                title="{{ offer_campaign.title or 'Special offer' }}"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+            ></iframe>
+        </div>
     </div>
 </div>
-<script src="/static/js/homepage-offer.js?v=3"></script>
+<script src="/static/js/homepage-offer.js?v=4"></script>
 {% endif %}
 {% endblock %}
