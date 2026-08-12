@@ -32,6 +32,8 @@ def test_homepage_shows_active_offer_campaign() -> None:
         assert "https://example.com/offer" in response.text
         assert "LEAF15" in response.text
         assert "homepage-offer.js" in response.text
+        assert "homepageOfferTimer" in response.text
+        assert "Closes in" in response.text
     finally:
         close_storefront_client(db)
 
