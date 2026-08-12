@@ -34,6 +34,7 @@ def test_homepage_shows_active_offer_campaign() -> None:
         assert "homepage-offer.js" in response.text
         assert "homepageOfferTimer" in response.text
         assert "Closes in" in response.text
+        assert "/static/images/sarees/silk-classics.jpg" in response.text
     finally:
         close_storefront_client(db)
 
