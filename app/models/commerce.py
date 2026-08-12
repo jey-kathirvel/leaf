@@ -1051,3 +1051,12 @@ class HomepageOfferCampaign(Base, TimestampMixin):
         Numeric(12, 2),
         nullable=True,
     )
+
+
+class HomepageImage(Base, TimestampMixin):
+    __tablename__ = "homepage_images"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    slot_key: Mapped[str] = mapped_column(String(80), nullable=False, unique=True, index=True)
+    image_path: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    alt_text: Mapped[Optional[str]] = mapped_column(String(250), nullable=True)

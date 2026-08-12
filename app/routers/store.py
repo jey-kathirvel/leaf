@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.db.deps import get_db
 from app.models import Brand, Category, Product
 from app.services.offer_campaign_service import get_active_homepage_campaign
+from app.services.homepage_image_service import HomepageImageService
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -84,6 +85,7 @@ def home(request: Request, db: Session = Depends(get_db)):
             "categories": categories[:4],
             "saree_products": saree_products,
             "saree_shop_href": saree_shop_href,
+            "homepage_media": HomepageImageService.media_map(db),
             "offer_campaign": get_active_homepage_campaign(db),
         },
     )

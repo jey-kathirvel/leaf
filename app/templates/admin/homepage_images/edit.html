@@ -1,0 +1,86 @@
+{% extends "admin/base.html" %}
+{% block title %}Homepage images | Leaf Admin{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <p class="text-uppercase text-success fw-bold small mb-1">Storefront</p>
+        <h1 class="h3">Homepage images</h1>
+        <p class="text-muted">Upload your own saree model and collection photos. Changes appear on the storefront home page immediately.</p>
+    </div>
+    {% if flash %}
+    <div class="alert alert-{{ flash.category }}">{{ flash.message }}</div>
+    {% endif %}
+
+    {% for section_name, slots in sections.items() %}
+    <div class="mb-4">
+        <h2 class="h5 mb-3">{{ section_name }}</h2>
+        <div class="row g-3">
+            {% for slot in slots %}
+            <div class="col-12 col-lg-6" id="{{ slot.key }}">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                            <div>
+                                <strong>{{ slot.label }}</strong>
+                                {% if slot.is_custom %}
+                                <span class="badge bg-success-subtle text-success ms-1">Your image</span>
+                                {% else %}
+                                <span class="badge bg-secondary-subtle text-secondary ms-1">Default placeholder</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <img
+                            src="{{ slot.url }}"
+                            alt="{{ slot.alt }}"
+                            class="img-fluid rounded mb-3 object-fit-cover w-100"
+                            style="max-height: 220px;"
+                        >
+                        <form
+                            method="post"
+                            action="/admin/homepage-images/{{ slot.key }}"
+                            enctype="multipart/form-data"
+                            class="row g-2 align-items-end mb-2"
+                        >
+                            <div class="col-12 col-md-5">
+                                <label class="form-label small">Replace image</label>
+                                <input
+                                    type="file"
+                                    name="image"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    class="form-control form-control-sm"
+                                    required
+                                >
+                            </div>
+                            <div class="col-12 col-md-5">
+                                <label class="form-label small">Alt text</label>
+                                <input
+                                    type="text"
+                                    name="alt_text"
+                                    maxlength="250"
+                                    class="form-control form-control-sm"
+                                    value="{{ slot.alt }}"
+                                    placeholder="Describe the image"
+                                >
+                            </div>
+                            <div class="col-12 col-md-2 d-grid">
+                                <button type="submit" class="btn btn-primary btn-sm">Upload</button>
+                            </div>
+                        </form>
+                        {% if slot.is_custom %}
+                        <form method="post" action="/admin/homepage-images/{{ slot.key }}/remove">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Remove custom image</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" href="/">Preview storefront</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,6 +1,6 @@
 import re
 
-from fastapi import APIRouter, Depends, Form, Request
+from fastapi import APIRouter, Depends, Form, Request, UploadFile, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, or_, select
@@ -11,6 +11,7 @@ from app.db.deps import get_db
 from decimal import Decimal, InvalidOperation
 
 from app.models import Category, CouponDiscountType, Customer, HomepageOfferCampaign, Inventory, Order, Product
+from app.services.homepage_image_service import HomepageImageError, HomepageImageService
 from app.services.offer_campaign_service import (
     format_campaign_schedule_for_input,
     get_campaign,
@@ -20,7 +21,7 @@ from app.services.offer_campaign_service import (
     parse_discount_type,
     campaign_within_schedule,
 )
-from app.routers.admin_products import pop_flash, require_admin, set_flash
+from app.routers.admin_products import pop_flash, require_admin, set_flash, optional_text
 
 
 router = APIRouter(prefix="/admin", tags=["Admin Operations"])
@@ -418,3 +419,66 @@ def offer_campaign_delete(campaign_id: int, request: Request, db: Session = Depe
         db.commit()
         set_flash(request, "Offer campaign deleted.")
     return RedirectResponse("/admin/offer-campaigns", status_code=303)
+
+
+@router.get("/homepage-images", response_class=HTMLResponse)
+def homepage_images_page(request: Request, db: Session = Depends(get_db)):
+    if redirect := require_admin(request):
+        return redirect
+    slots = HomepageImageService.list_admin_slots(db)
+    sections: dict[str, list] = {}
+    for slot in slots:
+        sections.setdefault(slot.section, []).append(slot)
+    return templates.TemplateResponse(
+        request,
+        "admin/homepage_images/edit.html",
+        {
+            "request": request,
+            "sections": sections,
+            "flash": pop_flash(request),
+        },
+    )
+
+
+@router.post("/homepage-images/{slot_key}")
+async def homepage_image_upload(slot_key: str, request: Request, db: Session = Depends(get_db)):
+    if redirect := require_admin(request):
+        return redirect
+    if slot_key not in HomepageImageService.slot_keys():
+        set_flash(request, "Unknown homepage image slot.", "danger")
+        return RedirectResponse("/admin/homepage-images", status_code=303)
+
+    form = await request.form()
+    image = form.get("image")
+    if not isinstance(image, UploadFile):
+        set_flash(request, "Select an image to upload.", "danger")
+        return RedirectResponse("/admin/homepage-images", status_code=303)
+
+    alt_text = optional_text(form.get("alt_text"))
+    try:
+        await HomepageImageService.upload(db, slot_key, image, alt_text=alt_text)
+        set_flash(request, "Homepage image updated.")
+    except HomepageImageError as exc:
+        set_flash(request, str(exc), "danger")
+    finally:
+        await image.close()
+
+    return RedirectResponse(
+        f"/admin/homepage-images#{slot_key}",
+        status_code=status.HTTP_303_SEE_OTHER,
+    )
+
+
+@router.post("/homepage-images/{slot_key}/remove")
+def homepage_image_remove(slot_key: str, request: Request, db: Session = Depends(get_db)):
+    if redirect := require_admin(request):
+        return redirect
+    if slot_key not in HomepageImageService.slot_keys():
+        set_flash(request, "Unknown homepage image slot.", "danger")
+    else:
+        try:
+            HomepageImageService.remove(db, slot_key)
+            set_flash(request, "Custom image removed. Default placeholder is shown again.")
+        except HomepageImageError as exc:
+            set_flash(request, str(exc), "danger")
+    return RedirectResponse("/admin/homepage-images", status_code=303)

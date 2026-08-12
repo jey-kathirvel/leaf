@@ -1,13 +1,19 @@
 # Saree placeholder images
 
-Test storefront photos for the India-focused saree homepage. Sourced from [Pexels](https://www.pexels.com) (free to use). Replace with your own product and model photography from Admin when ready.
+Default files in this folder are used when no custom image is uploaded in Admin.
 
-| File | Use |
-|------|-----|
-| `hero-saree.jpg` | Hero background |
-| `silk-classics.jpg` | Silk collection card |
-| `cotton-comfort.jpg` | Cotton collection card |
-| `festive-edit.jpg` | Festive collection card |
-| `wedding-picks.jpg` | Wedding collection card |
-| `spotlight.jpg` | Editorial spotlight section |
-| `occasion-*.jpg` | Shop-by-occasion cards |
+Manage storefront images at **Admin → Homepage images** (`/admin/homepage-images`).
+Uploaded photos are stored under `/uploads/homepage/` and appear on the live home page.
+
+| Slot key | Default file |
+|----------|----------------|
+| `hero-saree` | `hero-saree.jpg` |
+| `silk-classics` | `silk-classics.jpg` |
+| `cotton-comfort` | `cotton-comfort.jpg` |
+| `festive-edit` | `festive-edit.jpg` |
+| `wedding-picks` | `wedding-picks.jpg` |
+| `spotlight` | `spotlight.jpg` |
+| `occasion-wedding` | `occasion-wedding.jpg` |
+| `occasion-festive` | `occasion-festive.jpg` |
+| `occasion-everyday` | `occasion-everyday.jpg` |
+| `occasion-gift` | `occasion-gift.jpg` |
