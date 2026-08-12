@@ -161,6 +161,123 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .atelier-hero .button-secondary { color: #fff; border-color: rgba(255,255,255,.4); background: transparent; }
 .atelier-hero .button-secondary:hover { border-color: #fff; background: rgba(255,255,255,.08); }
 
+.hero-eyebrow {
+    display: inline-block; margin-bottom: 14px; padding: 6px 12px;
+    border-radius: 999px; border: 1px solid rgba(255,255,255,.28);
+    color: rgba(244,247,245,.92); font-size: 11px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+}
+.hero-eyebrow-dark {
+    color: var(--brass); border-color: rgba(47,107,82,.25); background: rgba(47,107,82,.08);
+}
+
+/* Saree hero */
+.saree-hero-media {
+    background:
+        linear-gradient(120deg, rgba(8,16,12,.82), rgba(8,16,12,.45)),
+        url("https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?auto=format&fit=crop&w=1800&q=80") center/cover no-repeat;
+}
+.saree-hero-inner {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+    gap: 32px; align-items: center;
+}
+.saree-hero-showcase {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;
+}
+.saree-hero-card {
+    position: relative; display: grid; overflow: hidden; border-radius: 18px;
+    min-height: 140px; color: #fff; background: #1d4636;
+    box-shadow: 0 18px 40px rgba(0,0,0,.22);
+    transition: transform .25s ease, box-shadow .25s ease;
+}
+.saree-hero-card:hover { transform: translateY(-3px); box-shadow: 0 22px 48px rgba(0,0,0,.28); }
+.saree-hero-card img {
+    width: 100%; height: 100%; object-fit: cover; min-height: 140px;
+    transition: transform .45s ease;
+}
+.saree-hero-card:hover img { transform: scale(1.05); }
+.saree-hero-card-copy {
+    position: absolute; inset: auto 0 0 0; padding: 14px;
+    background: linear-gradient(180deg, transparent, rgba(8,16,12,.82));
+}
+.saree-hero-card-copy strong { display: block; font-family: var(--font-display); font-size: 1.05rem; }
+.saree-hero-card-copy small { color: rgba(244,247,245,.78); font-size: 12px; }
+.saree-hero-card-featured { grid-column: span 2; min-height: 200px; }
+
+/* Marketing sections */
+.marketing-promo-strip {
+    padding: 28px 0; background: linear-gradient(90deg, #1d4636, #2f6b52);
+    color: #eef4f0;
+}
+.marketing-promo-inner {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px;
+}
+.marketing-promo-badge {
+    display: inline-block; margin-bottom: 8px; padding: 4px 10px; border-radius: 999px;
+    background: rgba(255,255,255,.14); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+}
+.marketing-promo-inner strong { display: block; font-family: var(--font-display); font-size: 1.35rem; color: #fff; }
+.marketing-promo-inner p { margin: 6px 0 0; color: rgba(238,244,240,.78); max-width: 48ch; }
+.marketing-promo-strip .button-primary { background: #fff; color: var(--ink); }
+
+.marketing-perks { padding-top: 56px; padding-bottom: 56px; }
+.marketing-perk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.marketing-perk {
+    padding: 28px 24px; border-radius: 20px; background: var(--surface);
+    border: 1px solid var(--line);
+}
+.marketing-perk-icon {
+    width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px;
+    background: rgba(47,107,82,.12); color: var(--leaf-deep); font-weight: 700;
+}
+.marketing-perk h2 { margin: 16px 0 8px; font-size: 1.2rem; }
+.marketing-perk p { margin: 0; color: var(--muted); line-height: 1.6; }
+
+.marketing-saree-spotlight { background: linear-gradient(180deg, rgba(238,242,239,.65), transparent); }
+.marketing-saree-layout { display: grid; grid-template-columns: 1.1fr .9fr; gap: 36px; align-items: center; }
+.marketing-saree-visual { position: relative; border-radius: 24px; overflow: hidden; }
+.marketing-saree-visual img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; display: block; }
+.marketing-saree-quote {
+    position: absolute; left: 20px; right: 20px; bottom: 20px; padding: 16px 18px;
+    border-radius: 16px; background: rgba(8,16,12,.72); color: #eef4f0;
+    font-family: var(--font-display); font-size: 1.05rem; line-height: 1.5;
+}
+.marketing-saree-copy h2 { margin: 12px 0 14px; font-size: clamp(2rem, 4vw, 2.8rem); }
+.marketing-saree-copy p { margin: 0 0 18px; color: var(--muted); line-height: 1.7; }
+.marketing-checklist {
+    margin: 0 0 24px; padding: 0; list-style: none; display: grid; gap: 10px;
+}
+.marketing-checklist li {
+    padding-left: 22px; position: relative; color: var(--text);
+}
+.marketing-checklist li::before {
+    content: ""; position: absolute; left: 0; top: 9px; width: 8px; height: 8px;
+    border-radius: 999px; background: var(--leaf-deep);
+}
+
+.marketing-occasion-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+.marketing-occasion-card {
+    display: grid; gap: 12px; color: var(--text); border-radius: 18px;
+    overflow: hidden; background: var(--surface); border: 1px solid var(--line);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+.marketing-occasion-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.marketing-occasion-card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.marketing-occasion-card span { display: grid; gap: 4px; padding: 14px 16px 18px; }
+.marketing-occasion-card strong { font-family: var(--font-display); font-size: 1.2rem; }
+.marketing-occasion-card small { color: var(--muted); }
+
+.marketing-stats {
+    padding: 42px 0; background: var(--ink); color: #eef4f0;
+}
+.marketing-stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; text-align: center;
+}
+.marketing-stats-grid strong {
+    display: block; font-family: var(--font-display); font-size: 2rem; color: #fff;
+}
+.marketing-stats-grid span { color: rgba(238,244,240,.72); font-size: 14px; }
+
 @keyframes hero-drift {
     from { transform: scale(1.04) translate3d(0,0,0); }
     to { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
@@ -454,8 +571,14 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .footer-grid section > a:hover { color: #fff; }
 .footer-bottom {
     margin-top: 48px; padding: 20px 0; border-top: 1px solid rgba(255,255,255,.08);
-    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: #7f9187; font-size: 12px;
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center;
+    color: #7f9187; font-size: 12px;
 }
+.footer-developer {
+    color: #b8c9be; font-size: 12px; font-weight: 600; letter-spacing: .04em;
+    transition: color .2s ease;
+}
+.footer-developer:hover { color: #fff; }
 
 /* Motion */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
@@ -474,6 +597,10 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
     .product-detail-grid { grid-template-columns: 1fr; gap: 28px; }
     .icon-action .action-label { display: none; }
     .contact-grid { grid-template-columns: 1fr; }
+    .saree-hero-inner { grid-template-columns: 1fr; }
+    .marketing-saree-layout { grid-template-columns: 1fr; }
+    .marketing-occasion-grid { grid-template-columns: repeat(2, 1fr); }
+    .marketing-stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 900px) {
     .cart-layout, .checkout-layout, .catalogue-layout, .policy-layout, .account-layout, .order-account-detail { grid-template-columns: 1fr; }
@@ -516,6 +643,12 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
     .atelier-collection-grid, .atelier-product-grid, .catalogue-product-grid, .related-products .product-grid, .category-grid { grid-template-columns: 1fr; }
     .atelier-hero-actions { flex-direction: column; align-items: stretch; }
     .atelier-hero-actions .button { justify-content: center; }
+    .marketing-perk-grid { grid-template-columns: 1fr; }
+    .marketing-promo-inner { align-items: flex-start; }
+    .saree-hero-showcase { grid-template-columns: 1fr 1fr; }
+    .saree-hero-card-featured { grid-column: span 2; }
+    .marketing-occasion-grid { grid-template-columns: 1fr; }
+    .marketing-stats-grid { grid-template-columns: 1fr 1fr; }
     .brand-copy small { display: none; }
     .footer-grid { grid-template-columns: 1fr; }
     .form-grid label.wide { grid-column: auto; }

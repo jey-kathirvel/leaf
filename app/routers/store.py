@@ -46,16 +46,44 @@ def home(request: Request, db: Session = Depends(get_db)):
             select(Category)
             .where(Category.is_active.is_(True))
             .order_by(Category.sort_order, Category.name)
+            .limit(6)
+        ).all()
+    )
+    saree_filters = [
+        Product.is_active.is_(True),
+        Product.deleted_at.is_(None),
+        or_(
+            Product.name.ilike("%saree%"),
+            Category.name.ilike("%saree%"),
+            Category.slug.ilike("%saree%"),
+        ),
+    ]
+    saree_products = list(
+        db.scalars(
+            select(Product)
+            .join(Category)
+            .options(*product_options())
+            .where(*saree_filters)
+            .order_by(Product.is_featured.desc(), Product.created_at.desc())
             .limit(4)
         ).all()
     )
+    saree_shop_href = "/shop?q=saree"
+    for category in categories:
+        label = f"{category.name} {category.slug}".lower()
+        if "saree" in label:
+            saree_shop_href = f"/shop?category={category.slug}"
+            break
+
     return templates.TemplateResponse(
         request,
         "store/home.html",
         {
             **base_context(request),
             "featured_products": products,
-            "categories": categories,
+            "categories": categories[:4],
+            "saree_products": saree_products,
+            "saree_shop_href": saree_shop_href,
             "offer_campaign": get_active_homepage_campaign(db),
         },
     )
