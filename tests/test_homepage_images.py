@@ -68,4 +68,34 @@ def test_homepage_images_admin_page(monkeypatch) -> None:
         db.close()
 
 
+def test_homepage_image_admin_upload(monkeypatch) -> None:
+    from io import BytesIO
+
+    from tests.test_admin_operations import authenticated_admin_client
+
+    upload_dir = isolated_upload_dir()
+    monkeypatch.setattr(settings, "UPLOAD_DIR", upload_dir)
+    client, db = authenticated_admin_client()
+    try:
+        response = client.post(
+            "/admin/homepage-images/hero-saree",
+            files={"image": ("hero.jpg", BytesIO(b"\xff\xd8\xffhero"), "image/jpeg")},
+            data={"alt_text": "Uploaded hero saree"},
+            follow_redirects=False,
+        )
+        assert response.status_code == 303
+        assert response.headers["location"] == "/admin/homepage-images#hero-saree"
+
+        page = client.get("/admin/homepage-images")
+        assert "Your image" in page.text
+        assert "Uploaded hero saree" in page.text
+
+        media = HomepageImageService.media_map(db)
+        assert media["hero-saree"].is_custom is True
+        assert media["hero-saree"].url.startswith("/uploads/homepage/hero-saree/")
+    finally:
+        app.dependency_overrides.clear()
+        db.close()
+
+
 from app.main import app
