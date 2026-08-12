@@ -68,6 +68,10 @@
         document.body.classList.add("offer-modal-open");
         startCountdown();
         closeTimer = setTimeout(closeOffer, autoCloseMs);
+        const closeButton = modal.querySelector(".homepage-offer-close");
+        if (closeButton) {
+            closeButton.focus({ preventScroll: true });
+        }
     }
 
     modal.querySelectorAll("[data-offer-close]").forEach((element) => {
