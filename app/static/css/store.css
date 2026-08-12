@@ -175,7 +175,7 @@ h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing:
 .saree-hero-media {
     background:
         linear-gradient(120deg, rgba(8,16,12,.82), rgba(8,16,12,.45)),
-        url("/static/images/sarees/hero-saree.jpg") center/cover no-repeat;
+        url("/static/images/sarees/hero-saree.jpg?v=indian1") center/cover no-repeat;
 }
 .saree-hero-inner {
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
