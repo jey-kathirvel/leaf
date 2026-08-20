@@ -31,25 +31,25 @@ def test_homepage_image_upload_and_remove(monkeypatch) -> None:
     row = asyncio.run(
         HomepageImageService.upload(
             db,
-            "silk-classics",
-            upload_file(b"\xff\xd8\xffsilk-saree"),
-            "Custom silk saree model",
+            "pantry-essentials",
+            upload_file(b"\xff\xd8\xffpantry-organic"),
+            "Custom organic pantry display",
         )
     )
-    assert row.image_path.startswith("/uploads/homepage/silk-classics/")
-    assert row.alt_text == "Custom silk saree model"
+    assert row.image_path.startswith("/uploads/homepage/pantry-essentials/")
+    assert row.alt_text == "Custom organic pantry display"
 
     media = HomepageImageService.media_map(db)
-    assert media["silk-classics"].is_custom is True
-    assert media["silk-classics"].url.startswith("/uploads/homepage/silk-classics/")
-    assert "Custom silk saree model" in media["silk-classics"].alt
+    assert media["pantry-essentials"].is_custom is True
+    assert media["pantry-essentials"].url.startswith("/uploads/homepage/pantry-essentials/")
+    assert "Custom organic pantry display" in media["pantry-essentials"].alt
 
-    HomepageImageService.remove(db, "silk-classics")
+    HomepageImageService.remove(db, "pantry-essentials")
     media_after = HomepageImageService.media_map(db)
-    assert media_after["silk-classics"].is_custom is False
-    assert media_after["silk-classics"].url.endswith("silk-classics.jpg")
+    assert media_after["pantry-essentials"].is_custom is False
+    assert media_after["pantry-essentials"].url.endswith("pantry-essentials.jpg")
     assert db.scalar(
-        __import__("sqlalchemy").select(HomepageImage).where(HomepageImage.slot_key == "silk-classics")
+        __import__("sqlalchemy").select(HomepageImage).where(HomepageImage.slot_key == "pantry-essentials")
     ).image_path is None
 
 
@@ -61,8 +61,8 @@ def test_homepage_images_admin_page(monkeypatch) -> None:
         page = client.get("/admin/homepage-images")
         assert page.status_code == 200
         assert "Homepage images" in page.text
-        assert "Silk classics card" in page.text
-        assert "hero-saree" in page.text
+        assert "Pantry classics card" in page.text
+        assert "hero-organic" in page.text
     finally:
         app.dependency_overrides.clear()
         db.close()
@@ -78,21 +78,21 @@ def test_homepage_image_admin_upload(monkeypatch) -> None:
     client, db = authenticated_admin_client()
     try:
         response = client.post(
-            "/admin/homepage-images/hero-saree",
+            "/admin/homepage-images/hero-organic",
             files={"image": ("hero.jpg", BytesIO(b"\xff\xd8\xffhero"), "image/jpeg")},
-            data={"alt_text": "Uploaded hero saree"},
+            data={"alt_text": "Uploaded hero organic"},
             follow_redirects=False,
         )
         assert response.status_code == 303
-        assert response.headers["location"] == "/admin/homepage-images#hero-saree"
+        assert response.headers["location"] == "/admin/homepage-images#hero-organic"
 
         page = client.get("/admin/homepage-images")
         assert "Your image" in page.text
-        assert "Uploaded hero saree" in page.text
+        assert "Uploaded hero organic" in page.text
 
         media = HomepageImageService.media_map(db)
-        assert media["hero-saree"].is_custom is True
-        assert media["hero-saree"].url.startswith("/uploads/homepage/hero-saree/")
+        assert media["hero-organic"].is_custom is True
+        assert media["hero-organic"].url.startswith("/uploads/homepage/hero-organic/")
     finally:
         app.dependency_overrides.clear()
         db.close()

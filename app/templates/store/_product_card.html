@@ -1,5 +1,5 @@
-<article class="product-card atelier-card reveal">
-    <a href="/product/{{ product.slug }}" class="atelier-card-media">
+<article class="product-card organic-card reveal">
+    <a href="/product/{{ product.slug }}" class="organic-card-media">
         {% if product.primary_image %}
         <img src="{{ product.primary_image.image_path }}" alt="{{ product.primary_image.alt_text or product.product_name }}" loading="lazy">
         {% else %}
@@ -14,16 +14,16 @@
         {% endif %}
     </a>
     <div class="product-content">
-        <span class="product-category">{{ product.category.name if product.category else "Leaf collection" }}</span>
+        <span class="product-category">{{ product.category.name if product.category else "Leaf organic" }}</span>
         <h3><a href="/product/{{ product.slug }}">{{ product.product_name }}</a></h3>
-        <div class="atelier-card-footer">
+        <div class="organic-card-footer">
             <div class="product-price">
                 <strong>₹{{ "%.2f"|format(product.selling_price|float) }}</strong>
                 {% if product.mrp and product.mrp > product.selling_price %}
                 <del>₹{{ "%.2f"|format(product.mrp|float) }}</del>
                 {% endif %}
             </div>
-            <button type="button" class="add-cart-button atelier-add" data-product-id="{{ product.id }}">Add</button>
+            <button type="button" class="add-cart-button organic-add" data-product-id="{{ product.id }}">Add</button>
         </div>
     </div>
 </article>

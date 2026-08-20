@@ -1,11 +1,11 @@
 {% extends "layouts/store_base.html" %}
-{% block title %}{% if filters.featured %}New in{% else %}Shop{% endif %} | Leaf Online Store{% endblock %}
+{% block title %}{% if filters.featured %}Featured{% else %}Shop{% endif %} | Leaf Organic Store{% endblock %}
 {% block content %}
 <section class="catalogue-hero">
     <div class="container">
         <span class="eyebrow"><span class="eyebrow-dot"></span> {% if filters.featured %}New arrivals{% else %}Leaf catalogue{% endif %}</span>
-        <h1>{% if filters.featured %}New in.{% else %}Find something for everyday.{% endif %}</h1>
-        <p>{% if filters.featured %}A focused edit of featured Leaf pieces.{% else %}Browse the active Leaf collection.{% endif %}</p>
+        <h1>{% if filters.featured %}Featured organic picks.{% else %}Naturally better essentials.{% endif %}</h1>
+        <p>{% if filters.featured %}Explore highlighted products from Leaf.{% else %}Browse organic food, wellness and sustainable living products.{% endif %}</p>
     </div>
 </section>
 <section class="section catalogue-section">
@@ -49,7 +49,7 @@
                     {% if filters.q %}<span class="toolbar-note">for “{{ filters.q }}”</span>{% endif %}
                 </div>
                 <div class="active-filter-chips">
-                    {% if filters.featured %}<a class="filter-chip" href="/shop?q={{ filters.q }}&category={{ filters.category }}&brand={{ filters.brand }}">New in ×</a>{% endif %}
+                    {% if filters.featured %}<a class="filter-chip" href="/shop?q={{ filters.q }}&category={{ filters.category }}&brand={{ filters.brand }}">Featured ×</a>{% endif %}
                     {% if filters.category %}<a class="filter-chip" href="/shop?q={{ filters.q }}&brand={{ filters.brand }}{% if filters.featured %}&featured=true{% endif %}">{{ filters.category }} ×</a>{% endif %}
                     {% if filters.brand %}<a class="filter-chip" href="/shop?q={{ filters.q }}&category={{ filters.category }}{% if filters.featured %}&featured=true{% endif %}">{{ filters.brand }} ×</a>{% endif %}
                 </div>

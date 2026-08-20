@@ -1,4 +1,4 @@
-# Leaf Online Store
+# Leaf Organic Store
 
 Leaf is a FastAPI storefront and administration application for managing products,
 categories, inventory, customers, carts and orders. The production storefront is
@@ -31,7 +31,7 @@ Configure the merchant VPA directly in the environment:
 ```env
 UPI_ENABLED=true
 UPI_VPA=merchant@bank
-UPI_PAYEE_NAME=Leaf Online Store
+UPI_PAYEE_NAME=Leaf Organic Store
 ```
 
 Restart the service after changing these values. Never mark a UPI order paid
@@ -362,7 +362,7 @@ but the Leaf invariants remain the same:
 - captured payment is required before fulfilment;
 - refunds are recorded and reconciled.
 
-For an India-focused clothing store, start with one provider rather than
+For an India-focused organic store, start with one provider rather than
 implementing several simultaneously. Razorpay or Cashfree are typical candidates;
 evaluate current pricing, activation requirements, settlement timing, support and
 the payment methods enabled for the actual merchant account before choosing.

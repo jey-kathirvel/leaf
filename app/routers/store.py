@@ -50,30 +50,20 @@ def home(request: Request, db: Session = Depends(get_db)):
             .limit(6)
         ).all()
     )
-    saree_filters = [
-        Product.is_active.is_(True),
-        Product.deleted_at.is_(None),
-        or_(
-            Product.name.ilike("%saree%"),
-            Category.name.ilike("%saree%"),
-            Category.slug.ilike("%saree%"),
-        ),
-    ]
-    saree_products = list(
+    organic_products = list(
         db.scalars(
             select(Product)
-            .join(Category)
             .options(*product_options())
-            .where(*saree_filters)
+            .where(Product.is_active.is_(True), Product.deleted_at.is_(None))
             .order_by(Product.is_featured.desc(), Product.created_at.desc())
             .limit(4)
         ).all()
     )
-    saree_shop_href = "/shop?q=saree"
+    organic_shop_href = "/shop"
     for category in categories:
         label = f"{category.name} {category.slug}".lower()
-        if "saree" in label:
-            saree_shop_href = f"/shop?category={category.slug}"
+        if "organic" in label:
+            organic_shop_href = f"/shop?category={category.slug}"
             break
 
     return templates.TemplateResponse(
@@ -83,8 +73,8 @@ def home(request: Request, db: Session = Depends(get_db)):
             **base_context(request),
             "featured_products": products,
             "categories": categories[:4],
-            "saree_products": saree_products,
-            "saree_shop_href": saree_shop_href,
+            "organic_products": organic_products,
+            "organic_shop_href": organic_shop_href,
             "homepage_media": HomepageImageService.media_map(db),
             "offer_campaign": get_active_homepage_campaign(db),
         },

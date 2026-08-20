@@ -35,7 +35,7 @@ def test_homepage_shows_active_offer_campaign() -> None:
         assert "homepageOfferTimer" in response.text
         assert "Closes in" in response.text
         assert "homepage-offer-iframe-wrap" in response.text
-        assert "/static/images/sarees/silk-classics.jpg" in response.text
+        assert "/static/images/organic/pantry-essentials.jpg" in response.text
     finally:
         close_storefront_client(db)
 

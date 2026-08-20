@@ -1,272 +1,32 @@
 {% extends "layouts/store_base.html" %}
-{% block title %}Leaf | Women's Saree Collections{% endblock %}
-{% block meta_description %}Discover beautiful women's saree collections at Leaf — silk, cotton, festive and everyday drapes curated with care.{% endblock %}
+{% block title %}Leaf | Organic Food, Wellness & Eco Living{% endblock %}
+{% block meta_description %}Shop trusted organic foods, farm-fresh produce, natural wellness essentials and sustainable home products at Leaf.{% endblock %}
 {% block content %}
-<section class="atelier-hero saree-hero">
-    <div
-        class="atelier-hero-media saree-hero-media"
-        role="img"
-        aria-label="{{ homepage_media['hero-saree'].alt }}"
-        style="background-image: linear-gradient(120deg, rgba(8,16,12,.82), rgba(8,16,12,.45)), url('{{ homepage_media['hero-saree'].url }}');"
-    ></div>
-    <div class="container atelier-hero-inner saree-hero-inner">
-        <div class="atelier-hero-copy reveal">
-            <span class="hero-eyebrow">Women's saree collections</span>
-            <p class="hero-brand">Leaf</p>
-            <h1>Beautiful drapes for every celebration.</h1>
-            <p class="hero-lead">Silk classics, cotton comfort, and festive edits — curated sarees that feel graceful from morning puja to evening gatherings.</p>
-            <div class="atelier-hero-actions">
-                <a class="button button-primary" href="{{ saree_shop_href }}">Shop saree collections</a>
-                <a class="button button-secondary" href="/shop?featured=true">New arrivals</a>
-            </div>
-        </div>
-        <div class="saree-hero-showcase reveal" aria-label="Featured saree collections">
-            <a href="{{ saree_shop_href }}" class="saree-hero-card saree-hero-card-featured">
-                <img src="{{ homepage_media['silk-classics'].url }}" alt="{{ homepage_media['silk-classics'].alt }}" loading="eager" decoding="async">
-                <span class="saree-hero-card-copy">
-                    <strong>Silk classics</strong>
-                    <small>Rich weaves & zari borders</small>
-                </span>
-            </a>
-            <a href="/shop?q=cotton+saree" class="saree-hero-card">
-                <img src="{{ homepage_media['cotton-comfort'].url }}" alt="{{ homepage_media['cotton-comfort'].alt }}" loading="lazy" decoding="async">
-                <span class="saree-hero-card-copy">
-                    <strong>Cotton comfort</strong>
-                    <small>Light, breathable drapes</small>
-                </span>
-            </a>
-            <a href="/shop?q=festive+saree" class="saree-hero-card">
-                <img src="{{ homepage_media['festive-edit'].url }}" alt="{{ homepage_media['festive-edit'].alt }}" loading="lazy" decoding="async">
-                <span class="saree-hero-card-copy">
-                    <strong>Festive edit</strong>
-                    <small>Colours for every occasion</small>
-                </span>
-            </a>
-            <a href="/shop?q=wedding+saree" class="saree-hero-card">
-                <img src="{{ homepage_media['wedding-picks'].url }}" alt="{{ homepage_media['wedding-picks'].alt }}" loading="lazy" decoding="async">
-                <span class="saree-hero-card-copy">
-                    <strong>Wedding picks</strong>
-                    <small>Statement bridal looks</small>
-                </span>
-            </a>
-        </div>
+<section class="organic-hero">
+  <div class="organic-hero-media" role="img" aria-label="{{ homepage_media['hero-organic'].alt }}" style="background-image:linear-gradient(120deg,rgba(8,30,18,.86),rgba(8,30,18,.38)),url('{{ homepage_media['hero-organic'].url }}')"></div>
+  <div class="container organic-hero-inner">
+    <div class="organic-hero-copy reveal"><span class="hero-eyebrow">Pure choices · Better living</span><p class="hero-brand">Leaf Organic Store</p><h1>Goodness grown by nature.</h1><p class="hero-lead">Discover organic pantry staples, farm-fresh produce, natural wellness essentials and sustainable home products selected for everyday healthy living.</p><div class="organic-hero-actions"><a class="button button-primary" href="/shop">Shop organic products</a><a class="button button-secondary" href="/shop?featured=true">Explore featured</a></div></div>
+    <div class="organic-hero-showcase reveal" aria-label="Featured organic departments">
+      {% for key,title,note,query in [('pantry-essentials','Pantry essentials','Grains, pulses, spices & oils','pantry'),('farm-fresh','Farm fresh','Seasonal fruits & vegetables','fresh'),('natural-wellness','Natural wellness','Herbal and mindful care','wellness'),('eco-home','Eco home','Sustainable everyday choices','eco')] %}
+      <a href="/shop?q={{ query }}" class="organic-hero-card {% if loop.first %}organic-hero-card-featured{% endif %}"><img src="{{ homepage_media[key].url }}" alt="{{ homepage_media[key].alt }}" loading="{{ 'eager' if loop.first else 'lazy' }}"><span class="organic-hero-card-copy"><strong>{{ title }}</strong><small>{{ note }}</small></span></a>{% endfor %}
     </div>
+  </div>
 </section>
-
-<section class="marketing-promo-strip">
-    <div class="container marketing-promo-inner reveal">
-        <div>
-            <span class="marketing-promo-badge">Limited offer</span>
-            <strong>Use coupon LEAF15 at checkout</strong>
-            <p>Extra savings on sarees and new arrivals. Apply your code before you pay.</p>
-        </div>
-        <a class="button button-primary" href="{{ saree_shop_href }}">Explore sarees</a>
-    </div>
-</section>
-
-<section class="section marketing-perks">
-    <div class="container marketing-perk-grid">
-        <article class="marketing-perk reveal">
-            <span class="marketing-perk-icon" aria-hidden="true">✓</span>
-            <h2>Curated quality</h2>
-            <p>Every saree is chosen for fabric, fall, and finish — so you feel confident wearing it.</p>
-        </article>
-        <article class="marketing-perk reveal">
-            <span class="marketing-perk-icon" aria-hidden="true">₹</span>
-            <h2>Easy COD & UPI</h2>
-            <p>Pay on delivery or complete UPI checkout — simple options for every order.</p>
-        </article>
-        <article class="marketing-perk reveal">
-            <span class="marketing-perk-icon" aria-hidden="true">↺</span>
-            <h2>Friendly support</h2>
-            <p>Questions on sizing, draping, or delivery? Our team is here to help.</p>
-        </article>
-    </div>
-</section>
-
-<section class="section atelier-collections">
-    <div class="container">
-        <div class="section-intro reveal">
-            <h2>Collections</h2>
-            <p>Start with the mood that fits your day — from everyday cotton to statement silks.</p>
-        </div>
-        <div class="atelier-collection-grid">
-            {% for category in categories %}
-            <a href="/shop?category={{ category.slug }}" class="atelier-collection-link reveal">
-                <span class="atelier-collection-index">{{ "%02d"|format(loop.index) }}</span>
-                <strong>{{ category.name }}</strong>
-                <span>{{ category.description or "Explore the collection" }}</span>
-            </a>
-            {% else %}
-            <a href="{{ saree_shop_href }}" class="atelier-collection-link reveal">
-                <span class="atelier-collection-index">01</span>
-                <strong>Saree collections</strong>
-                <span>Silk, cotton, festive and wedding edits.</span>
-            </a>
-            <a href="/shop?featured=true" class="atelier-collection-link reveal">
-                <span class="atelier-collection-index">02</span>
-                <strong>New arrivals</strong>
-                <span>Fresh picks from the Leaf catalogue.</span>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<section class="section marketing-saree-spotlight">
-    <div class="container marketing-saree-layout">
-        <div class="marketing-saree-visual reveal">
-            <img src="{{ homepage_media['spotlight'].url }}" alt="{{ homepage_media['spotlight'].alt }}" loading="lazy" decoding="async">
-            <div class="marketing-saree-quote">
-                <p>“Drape confidence — soft silks, vivid prints, and timeless borders for every woman.”</p>
-            </div>
-        </div>
-        <div class="marketing-saree-copy reveal">
-            <span class="hero-eyebrow hero-eyebrow-dark">Saree spotlight</span>
-            <h2>Designed for real celebrations</h2>
-            <p>Whether you are dressing for a wedding, festival, or a quiet family lunch, Leaf saree collections balance colour, comfort, and craftsmanship.</p>
-            <ul class="marketing-checklist">
-                <li>Silk, cotton, linen & blended weaves</li>
-                <li>Festive, wedding & everyday edits</li>
-                <li>Free delivery on orders over ₹499</li>
-            </ul>
-            <a class="button button-primary" href="{{ saree_shop_href }}">View saree catalogue</a>
-        </div>
-    </div>
-</section>
-
-{% if saree_products %}
-<section class="section marketing-curated-sarees">
-    <div class="container">
-        <div class="section-intro reveal">
-            <div>
-                <h2>Curated sarees</h2>
-                <p>Handpicked drapes from our current catalogue.</p>
-            </div>
-            <a class="text-link" href="{{ saree_shop_href }}">Shop all sarees</a>
-        </div>
-        <div class="product-grid atelier-product-grid">
-            {% for product in saree_products %}
-            {% include "store/_product_card.html" %}
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-<section class="section marketing-occasions">
-    <div class="container">
-        <div class="section-intro reveal">
-            <h2>Shop by occasion</h2>
-            <p>Find the right saree for the moment you are dressing for.</p>
-        </div>
-        <div class="marketing-occasion-grid">
-            <a href="/shop?q=wedding+saree" class="marketing-occasion-card reveal">
-                <img src="{{ homepage_media['occasion-wedding'].url }}" alt="{{ homepage_media['occasion-wedding'].alt }}" loading="lazy">
-                <span><strong>Wedding</strong><small>Bridal & reception looks</small></span>
-            </a>
-            <a href="/shop?q=festive+saree" class="marketing-occasion-card reveal">
-                <img src="{{ homepage_media['occasion-festive'].url }}" alt="{{ homepage_media['occasion-festive'].alt }}" loading="lazy">
-                <span><strong>Festive</strong><small>Puja & celebration edits</small></span>
-            </a>
-            <a href="/shop?q=office+saree" class="marketing-occasion-card reveal">
-                <img src="{{ homepage_media['occasion-everyday'].url }}" alt="{{ homepage_media['occasion-everyday'].alt }}" loading="lazy">
-                <span><strong>Everyday</strong><small>Office & casual drapes</small></span>
-            </a>
-            <a href="/shop?q=gift+saree" class="marketing-occasion-card reveal">
-                <img src="{{ homepage_media['occasion-gift'].url }}" alt="{{ homepage_media['occasion-gift'].alt }}" loading="lazy">
-                <span><strong>Gifting</strong><small>Thoughtful presents for her</small></span>
-            </a>
-        </div>
-    </div>
-</section>
-
-<section class="section atelier-products">
-    <div class="container">
-        <div class="section-intro reveal">
-            <div>
-                <h2>Selected pieces</h2>
-                <p>Fresh picks from the current Leaf catalogue.</p>
-            </div>
-            <a class="text-link" href="/shop">View all</a>
-        </div>
-        <div class="product-grid atelier-product-grid">
-            {% for product in featured_products %}
-            {% include "store/_product_card.html" %}
-            {% else %}
-            <div class="catalog-empty">
-                <strong>The first drop is being prepared.</strong>
-                <span>Publish active products from Admin and they will appear here.</span>
-                <a class="button button-primary" href="/shop">Browse the shop</a>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<section class="marketing-stats">
-    <div class="container marketing-stats-grid reveal">
-        <div><strong>500+</strong><span>Happy customers across India</span></div>
-        <div><strong>₹499+</strong><span>Free delivery threshold</span></div>
-        <div><strong>COD</strong><span>Cash on delivery available</span></div>
-        <div><strong>UPI</strong><span>Quick prepaid checkout</span></div>
-    </div>
-</section>
-
-<section class="atelier-closing">
-    <div class="container reveal">
-        <h2>Made for the pace of real days.</h2>
-        <p>Free delivery over ₹499 · Easy COD · Friendly support</p>
-        <a class="button button-primary" href="{{ saree_shop_href }}">Shop saree collections</a>
-    </div>
-</section>
+<section class="marketing-promo-strip"><div class="container marketing-promo-inner reveal"><div><span class="marketing-promo-badge">Welcome offer</span><strong>Use coupon LEAF15 at checkout</strong><p>Save on selected organic essentials and new arrivals.</p></div><a class="button button-primary" href="/shop">Shop now</a></div></section>
+<section class="section marketing-perks"><div class="container marketing-perk-grid">
+  <article class="marketing-perk reveal"><span class="marketing-perk-icon">✓</span><h2>Carefully sourced</h2><p>Selected for transparent ingredients, responsible sourcing and dependable quality.</p></article>
+  <article class="marketing-perk reveal"><span class="marketing-perk-icon">₹</span><h2>Easy COD & UPI</h2><p>Choose a convenient payment option and complete your order securely.</p></article>
+  <article class="marketing-perk reveal"><span class="marketing-perk-icon">↺</span><h2>Helpful support</h2><p>Need ingredient, storage or delivery information? Our team is ready to help.</p></article>
+</div></section>
+<section class="section organic-collections"><div class="container"><div class="section-intro reveal"><h2>Shop by department</h2><p>Everything you need for a naturally better everyday routine.</p></div><div class="organic-collection-grid">
+  {% for category in categories %}<a href="/shop?category={{ category.slug }}" class="organic-collection-link reveal"><span class="organic-collection-index">{{ "%02d"|format(loop.index) }}</span><strong>{{ category.name }}</strong><span>{{ category.description or "Explore organic products" }}</span></a>
+  {% else %}<a href="/shop?q=food" class="organic-collection-link reveal"><span class="organic-collection-index">01</span><strong>Organic foods</strong><span>Wholesome staples for your kitchen.</span></a><a href="/shop?q=wellness" class="organic-collection-link reveal"><span class="organic-collection-index">02</span><strong>Natural wellness</strong><span>Gentle care inspired by nature.</span></a>{% endfor %}
+</div></div></section>
+<section class="section marketing-organic-spotlight"><div class="container marketing-organic-layout"><div class="marketing-organic-visual reveal"><img src="{{ homepage_media['spotlight'].url }}" alt="{{ homepage_media['spotlight'].alt }}" loading="lazy"><div class="marketing-organic-quote"><p>“Simple ingredients, thoughtful sourcing and everyday goodness.”</p></div></div><div class="marketing-organic-copy reveal"><span class="hero-eyebrow hero-eyebrow-dark">From farm to home</span><h2>Know what you bring home</h2><p>Leaf brings together organic and sustainable products with clear descriptions, practical storage guidance and transparent product information.</p><ul class="marketing-checklist"><li>Organic pantry and farm essentials</li><li>Natural care and wellness products</li><li>Eco-conscious home and gifting choices</li></ul><a class="button button-primary" href="/shop">Browse the catalogue</a></div></div></section>
+{% if organic_products %}<section class="section marketing-curated-organics"><div class="container"><div class="section-intro reveal"><div><h2>Organic favourites</h2><p>Popular picks from the current Leaf catalogue.</p></div><a class="text-link" href="/shop">Shop all</a></div><div class="product-grid organic-product-grid">{% for product in organic_products %}{% include "store/_product_card.html" %}{% endfor %}</div></div></section>{% endif %}
+<section class="section marketing-categories"><div class="container"><div class="section-intro reveal"><h2>Explore more</h2><p>Find products that fit your food, wellness and sustainable living goals.</p></div><div class="marketing-category-grid">{% for key,title,note,query in [('organic-foods','Organic foods','Staples, spices, oils & more','food'),('natural-care','Natural care','Gentle plant-based essentials','care'),('healthy-snacks','Healthy snacks','Wholesome bites for every day','snacks'),('eco-gifts','Eco gifts','Thoughtful sustainable hampers','gifts')] %}<a href="/shop?q={{ query }}" class="marketing-category-card reveal"><img src="{{ homepage_media[key].url }}" alt="{{ homepage_media[key].alt }}" loading="lazy"><span><strong>{{ title }}</strong><small>{{ note }}</small></span></a>{% endfor %}</div></div></section>
+<section class="section organic-products"><div class="container"><div class="section-intro reveal"><div><h2>Fresh from Leaf</h2><p>Recently added products ready to discover.</p></div><a class="text-link" href="/shop">View all</a></div><div class="product-grid organic-product-grid">{% for product in featured_products %}{% include "store/_product_card.html" %}{% else %}<div class="catalog-empty"><strong>Your organic catalogue is ready to grow.</strong><span>Add and publish products from Admin to show them here.</span></div>{% endfor %}</div></div></section>
+<section class="marketing-stats"><div class="container marketing-stats-grid reveal"><div><strong>Quality</strong><span>Carefully selected products</span></div><div><strong>₹499+</strong><span>Free delivery threshold</span></div><div><strong>COD</strong><span>Cash on delivery available</span></div><div><strong>UPI</strong><span>Quick prepaid checkout</span></div></div></section>
+<section class="organic-closing"><div class="container reveal"><h2>Choose clean. Live naturally.</h2><p>Organic essentials · Easy payments · Friendly support</p><a class="button button-primary" href="/shop">Start shopping</a></div></section>
 {% endblock %}
-
-{% block scripts %}
-{% if offer_campaign %}
-<div
-    id="homepageOfferModal"
-    class="homepage-offer-modal is-hidden"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="homepageOfferTitle"
-    hidden
-    data-delay-seconds="{{ offer_campaign.delay_seconds }}"
-    data-auto-close-seconds="{{ offer_campaign.auto_close_seconds }}"
->
-    <button type="button" class="homepage-offer-backdrop" data-offer-close aria-label="Close offer"></button>
-    <div class="homepage-offer-panel">
-        <button type="button" class="homepage-offer-close" data-offer-close aria-label="Close offer">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        {% if offer_campaign.title %}
-        <h2 id="homepageOfferTitle" class="homepage-offer-title">{{ offer_campaign.title }}</h2>
-        {% endif %}
-        {% if offer_campaign.message %}
-        <p class="homepage-offer-message">{{ offer_campaign.message }}</p>
-        {% endif %}
-        {% if offer_campaign.coupon_code %}
-        <div class="homepage-offer-coupon">
-            <span>Use code</span>
-            <strong id="homepageOfferCoupon">{{ offer_campaign.coupon_code }}</strong>
-            <button type="button" class="homepage-offer-copy" id="homepageOfferCopy">Copy</button>
-        </div>
-        {% endif %}
-        <p class="homepage-offer-timer" id="homepageOfferTimer" aria-live="polite" hidden>
-            <span class="homepage-offer-timer-dot" aria-hidden="true"></span>
-            Closes in <strong id="homepageOfferTimerValue">0</strong>s · tap × to dismiss
-        </p>
-        <div class="homepage-offer-iframe-wrap">
-            <iframe
-                class="homepage-offer-iframe"
-                src="{{ offer_campaign.iframe_url }}"
-                title="{{ offer_campaign.title or 'Special offer' }}"
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-            ></iframe>
-        </div>
-    </div>
-</div>
-<script src="/static/js/homepage-offer.js?v=4"></script>
-{% endif %}
-{% endblock %}
+{% block scripts %}{% if offer_campaign %}<div id="homepageOfferModal" class="homepage-offer-modal is-hidden" role="dialog" aria-modal="true" hidden data-delay-seconds="{{ offer_campaign.delay_seconds }}" data-auto-close-seconds="{{ offer_campaign.auto_close_seconds }}"><button type="button" class="homepage-offer-backdrop" data-offer-close aria-label="Close offer"></button><div class="homepage-offer-panel"><button type="button" class="homepage-offer-close" data-offer-close aria-label="Close offer">&times;</button>{% if offer_campaign.title %}<h2 id="homepageOfferTitle" class="homepage-offer-title">{{ offer_campaign.title }}</h2>{% endif %}{% if offer_campaign.message %}<p class="homepage-offer-message">{{ offer_campaign.message }}</p>{% endif %}{% if offer_campaign.coupon_code %}<div class="homepage-offer-coupon"><span>Use code</span><strong id="homepageOfferCoupon">{{ offer_campaign.coupon_code }}</strong><button type="button" class="homepage-offer-copy" id="homepageOfferCopy">Copy</button></div>{% endif %}<p class="homepage-offer-timer" id="homepageOfferTimer" hidden>Closes in <strong id="homepageOfferTimerValue">0</strong>s</p><div class="homepage-offer-iframe-wrap"><iframe class="homepage-offer-iframe" src="{{ offer_campaign.iframe_url }}" title="{{ offer_campaign.title or 'Special offer' }}" loading="lazy"></iframe></div></div></div><script src="/static/js/homepage-offer.js?v=4"></script>{% endif %}{% endblock %}

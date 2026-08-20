@@ -12,7 +12,7 @@ load_dotenv(ENV_FILE)
 
 
 class Settings:
-    APP_NAME: str = os.getenv("APP_NAME", "Leaf Online Store")
+    APP_NAME: str = os.getenv("APP_NAME", "Leaf Organic Store")
     APP_ENV: str = os.getenv("APP_ENV", "development")
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
 
@@ -56,7 +56,7 @@ class Settings:
 
     UPI_ENABLED: bool = os.getenv("UPI_ENABLED", "false").lower() == "true"
     UPI_VPA: str = os.getenv("UPI_VPA", "").strip()
-    UPI_PAYEE_NAME: str = os.getenv("UPI_PAYEE_NAME", "Leaf Online Store").strip()
+    UPI_PAYEE_NAME: str = os.getenv("UPI_PAYEE_NAME", "Leaf Organic Store").strip()
 
 
 @lru_cache

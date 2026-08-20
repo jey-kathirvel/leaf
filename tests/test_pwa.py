@@ -22,7 +22,7 @@ def test_pwa_manifest_and_service_worker_routes() -> None:
     assert manifest_response.status_code == 200
     assert manifest_response.headers["content-type"].startswith("application/manifest+json")
     manifest = json.loads(manifest_response.text)
-    assert manifest["name"] == "Leaf Online Store"
+    assert manifest["name"] == "Leaf Organic Store"
     assert manifest["display"] == "standalone"
     assert "standalone" in manifest["display_override"]
     assert manifest["prefer_related_applications"] is False
@@ -34,8 +34,8 @@ def test_pwa_manifest_and_service_worker_routes() -> None:
     assert "no-cache" in worker_response.headers["cache-control"]
     assert '"/admin"' in worker_response.text
     assert '"/checkout"' in worker_response.text
-    assert 'store.css?v=atelier-4' in worker_response.text
-    assert 'store.js?v=atelier-2' in worker_response.text
+    assert 'store.css?v=organic-4' in worker_response.text
+    assert 'store.js?v=organic-2' in worker_response.text
     assert offline_response.status_code == 200
     assert "currently offline" in offline_response.text
 
