@@ -15,7 +15,7 @@
         <div class="col-lg-2 d-flex gap-2"><button class="btn btn-primary flex-grow-1">Filter</button><a class="btn btn-outline-secondary" href="/admin/orders">Clear</a></div>
     </div></form>
     <div class="card border-0 shadow-sm"><div class="table-responsive"><table class="table align-middle mb-0">
-        <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Payment method</th><th>Payment status</th><th>Order status</th><th>Total</th><th>Date</th></tr></thead>
+        <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Payment method</th><th>Payment status</th><th>Order status</th><th>Total</th><th>Date</th><th>Action</th></tr></thead>
         <tbody>{% for order in orders %}<tr>
             <td><a class="fw-bold text-decoration-none" href="/admin/orders/{{ order.id }}">{{ order.order_number }}</a>{% if order.tracking_number %}<small class="d-block text-muted">{{ order.tracking_number }}</small>{% endif %}</td>
             <td>{{ order.customer.email if order.customer else 'Guest' }}</td><td>{{ order.items|length }}</td>
@@ -44,7 +44,8 @@
                 </form>
             </td>
             <td class="fw-bold">₹{{ "%.2f"|format(order.grand_total|float) }}</td><td>{{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</td>
-        </tr>{% else %}<tr><td colspan="8" class="text-center py-5 text-muted">No orders match these filters.</td></tr>{% endfor %}</tbody>
+            <td><a class="btn btn-outline-primary btn-sm text-nowrap" href="/admin/orders/{{ order.id }}">View details</a></td>
+        </tr>{% else %}<tr><td colspan="9" class="text-center py-5 text-muted">No orders match these filters.</td></tr>{% endfor %}</tbody>
     </table></div></div>
 </div>
 <script>
