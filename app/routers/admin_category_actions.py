@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request, status
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -122,26 +122,23 @@ def category_delete(
     category_name = category.name
 
     try:
-        # Product deletion in Leaf is normally a soft delete, so historical
-        # product rows can still hold the category FK even though they are no
-        # longer part of the catalogue. Once a category has zero active
-        # products, permanently remove only those already-soft-deleted product
-        # rows before deleting the category. OrderItem.product_id uses SET NULL
-        # and order-item snapshot fields keep the historical order details.
-        deleted_products = db.scalars(
-            select(Product).where(
+        # Soft-deleted products still hold the category FK. Use a SQLAlchemy
+        # Core DELETE rather than ORM instance deletion so PostgreSQL applies
+        # the configured FK actions directly (CASCADE / SET NULL) without the
+        # ORM trying to null non-nullable child foreign keys first.
+        db.execute(
+            delete(Product).where(
                 Product.category_id == category_id,
                 Product.deleted_at.is_not(None),
-            )
-        ).all()
-        for product in deleted_products:
-            db.delete(product)
+            ),
+            execution_options={"synchronize_session": False},
+        )
 
         db.flush()
         db.delete(category)
         db.commit()
         set_flash(request, f"Category '{category_name}' deleted.")
-    except IntegrityError:
+    except IntegrityError as exc:
         db.rollback()
         set_flash(
             request,
