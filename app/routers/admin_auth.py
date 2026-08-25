@@ -34,21 +34,11 @@ def admin_login_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/admin", status_code=303)
     csrf_token = generate_csrf_token()
     request.session["admin_login_csrf"] = csrf_token
-    return templates.TemplateResponse(
-        request,
-        "admin/login.html",
-        {"request": request, "csrf_token": csrf_token, "error": request.query_params.get("error")},
-    )
+    return templates.TemplateResponse(request, "admin/login.html", {"request": request, "csrf_token": csrf_token, "error": request.query_params.get("error")})
 
 
 @router.post("/login")
-def admin_login(
-    request: Request,
-    email: str = Form(...),
-    password: str = Form(...),
-    csrf_token: str = Form(...),
-    db: Session = Depends(get_db),
-):
+def admin_login(request: Request, email: str = Form(...), password: str = Form(...), csrf_token: str = Form(...), db: Session = Depends(get_db)):
     session_csrf = request.session.pop("admin_login_csrf", None)
     if not session_csrf or not csrf_token or csrf_token != session_csrf:
         return RedirectResponse(url="/admin/login?error=" + quote("Invalid or expired login request."), status_code=303)
