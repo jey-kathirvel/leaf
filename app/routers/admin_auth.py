@@ -26,6 +26,8 @@ from app.models import (
     Category,
     Customer,
     Order,
+    OrderStatus,
+    PaymentStatus,
     Product,
 )
 
@@ -205,6 +207,11 @@ def admin_dashboard(
         .limit(8)
     ).all()
 
+    csrf_token = request.session.get("admin_action_csrf")
+    if not csrf_token:
+        csrf_token = generate_csrf_token()
+        request.session["admin_action_csrf"] = csrf_token
+
     return templates.TemplateResponse(
         request,
         "admin/dashboard.html",
@@ -213,5 +220,12 @@ def admin_dashboard(
             "admin": admin,
             "metrics": metrics,
             "recent_orders": recent_orders,
+            "statuses": list(OrderStatus),
+            "payment_statuses": [
+                PaymentStatus.PENDING,
+                PaymentStatus.PAID,
+                PaymentStatus.FAILED,
+            ],
+            "csrf_token": csrf_token,
         },
     )
