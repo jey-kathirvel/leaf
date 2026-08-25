@@ -1,4 +1,5 @@
 from datetime import datetime, time
+from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -6,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, selectinload
 
+from app.core.security import generate_csrf_token
 from app.db.deps import get_db
 from app.models import Customer, Order, OrderStatus, PaymentStatus
 from app.routers.admin_products import require_admin, set_flash, pop_flash
@@ -14,6 +16,29 @@ from app.services.order_service import OrderWorkflowError, allowed_next_statuses
 
 router = APIRouter(prefix="/admin/orders", tags=["Admin Orders"])
 templates = Jinja2Templates(directory="app/templates")
+
+
+def _admin_csrf_token(request: Request) -> str:
+    token = request.session.get("admin_action_csrf")
+    if not token:
+        token = generate_csrf_token()
+        request.session["admin_action_csrf"] = token
+    return token
+
+
+def _valid_admin_csrf(request: Request, csrf_token: str) -> bool:
+    expected = request.session.get("admin_action_csrf")
+    return bool(expected and csrf_token and expected == csrf_token)
+
+
+def _safe_admin_return_to(return_to: str, fallback: str) -> str:
+    candidate = (return_to or "").strip()
+    if not candidate:
+        return fallback
+    parsed = urlparse(candidate)
+    if parsed.scheme or parsed.netloc or not candidate.startswith("/admin"):
+        return fallback
+    return candidate
 
 
 @router.get("", response_class=HTMLResponse)
@@ -47,7 +72,15 @@ def order_list(request: Request, q: str = "", status: str = "", date_from: str =
         .order_by(Order.created_at.desc())
         .limit(100)
     ).all()
-    return templates.TemplateResponse(request, "admin/orders/list.html", {"request": request, "orders": orders, "statuses": list(OrderStatus), "filters": {"q": q, "status": status, "date_from": date_from, "date_to": date_to}, "flash": pop_flash(request)})
+    return templates.TemplateResponse(request, "admin/orders/list.html", {
+        "request": request,
+        "orders": orders,
+        "statuses": list(OrderStatus),
+        "payment_statuses": [PaymentStatus.PENDING, PaymentStatus.PAID, PaymentStatus.FAILED],
+        "csrf_token": _admin_csrf_token(request),
+        "filters": {"q": q, "status": status, "date_from": date_from, "date_to": date_to},
+        "flash": pop_flash(request),
+    })
 
 
 @router.get("/{order_id:int}", response_class=HTMLResponse)
@@ -63,6 +96,90 @@ def order_detail(order_id: int, request: Request, db: Session = Depends(get_db))
     if not order:
         return RedirectResponse("/admin/orders", status_code=303)
     return templates.TemplateResponse(request, "admin/orders/view.html", {"request": request, "order": order, "next_statuses": allowed_next_statuses(order.status), "flash": pop_flash(request)})
+
+
+@router.post("/{order_id:int}/quick-status")
+def order_quick_status_update(
+    order_id: int,
+    request: Request,
+    target_status: str = Form(...),
+    csrf_token: str = Form(...),
+    return_to: str = Form("/admin/orders"),
+    db: Session = Depends(get_db),
+):
+    redirect = require_admin(request)
+    if redirect:
+        return redirect
+    destination = _safe_admin_return_to(return_to, "/admin/orders")
+    if not _valid_admin_csrf(request, csrf_token):
+        set_flash(request, "Invalid or expired admin action. Please try again.", "danger")
+        return RedirectResponse(destination, status_code=303)
+
+    order = db.get(Order, order_id)
+    if not order:
+        set_flash(request, "Order not found.", "danger")
+        return RedirectResponse(destination, status_code=303)
+
+    try:
+        target = OrderStatus(target_status)
+    except ValueError:
+        set_flash(request, "Choose a valid order status.", "danger")
+        return RedirectResponse(destination, status_code=303)
+
+    if target == order.status:
+        return RedirectResponse(destination, status_code=303)
+
+    try:
+        update_fulfilment(
+            db,
+            order_id,
+            target.value,
+            order.courier_name or "",
+            order.tracking_number or "",
+            order.internal_notes or "",
+            "Quick status update from admin list.",
+        )
+        set_flash(request, f"Order {order.order_number} marked {target.value}.")
+    except OrderWorkflowError as exc:
+        db.rollback()
+        set_flash(request, str(exc), "danger")
+    return RedirectResponse(destination, status_code=303)
+
+
+@router.post("/{order_id:int}/quick-payment")
+def order_quick_payment_update(
+    order_id: int,
+    request: Request,
+    payment_status: str = Form(...),
+    csrf_token: str = Form(...),
+    return_to: str = Form("/admin/orders"),
+    db: Session = Depends(get_db),
+):
+    redirect = require_admin(request)
+    if redirect:
+        return redirect
+    destination = _safe_admin_return_to(return_to, "/admin/orders")
+    if not _valid_admin_csrf(request, csrf_token):
+        set_flash(request, "Invalid or expired admin action. Please try again.", "danger")
+        return RedirectResponse(destination, status_code=303)
+
+    order = db.get(Order, order_id)
+    if not order:
+        set_flash(request, "Order not found.", "danger")
+        return RedirectResponse(destination, status_code=303)
+    try:
+        target = PaymentStatus(payment_status)
+    except ValueError:
+        set_flash(request, "Choose a valid payment status.", "danger")
+        return RedirectResponse(destination, status_code=303)
+    if target not in {PaymentStatus.PENDING, PaymentStatus.PAID, PaymentStatus.FAILED}:
+        set_flash(request, "This payment status cannot be set manually.", "danger")
+        return RedirectResponse(destination, status_code=303)
+    if target != order.payment_status:
+        order.payment_status = target
+        db.commit()
+        set_flash(request, f"Payment for {order.order_number} marked {target.value}.")
+    return RedirectResponse(destination, status_code=303)
 
 
 @router.post("/{order_id:int}/fulfilment")
