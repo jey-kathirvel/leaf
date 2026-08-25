@@ -91,6 +91,7 @@ async def offline_page():
 # and route declarations to prevent circular-import registration issues.
 from app.routers.admin_auth import router as admin_router
 from app.routers.admin_product_delete import router as admin_product_delete_router
+from app.routers.admin_category_actions import router as admin_category_actions_router
 from app.routers import admin_products
 from app.routers.store import router as store_router
 from app.routers.checkout import router as checkout_router
@@ -106,5 +107,6 @@ app.include_router(admin_router)
 app.include_router(admin_product_delete_router)
 app.include_router(admin_products.router)
 app.include_router(admin_orders_router)
+app.include_router(admin_category_actions_router)
 app.include_router(admin_operations_router)
 app.include_router(customer_account_router)
