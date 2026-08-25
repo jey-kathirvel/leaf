@@ -36,7 +36,9 @@ def _safe_admin_return_to(return_to: str, fallback: str) -> str:
     if not candidate:
         return fallback
     parsed = urlparse(candidate)
-    if parsed.scheme or parsed.netloc or not candidate.startswith("/admin"):
+    if parsed.scheme or parsed.netloc:
+        return fallback
+    if candidate != "/admin" and not candidate.startswith("/admin/"):
         return fallback
     return candidate
 
