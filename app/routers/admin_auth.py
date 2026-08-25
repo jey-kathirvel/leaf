@@ -44,18 +44,6 @@ router = APIRouter(
 )
 
 
-def _pop_flash(request: Request):
-    payload = request.session.pop("flash", None)
-    if isinstance(payload, dict):
-        class Flash:
-            pass
-        flash = Flash()
-        flash.message = payload.get("message", "")
-        flash.category = payload.get("category", "success")
-        return flash
-    return payload
-
-
 def get_current_admin(
     request: Request,
     db: Session,
@@ -224,6 +212,8 @@ def admin_dashboard(
         csrf_token = generate_csrf_token()
         request.session["admin_action_csrf"] = csrf_token
 
+    flash = request.session.pop("flash_message", None)
+
     return templates.TemplateResponse(
         request,
         "admin/dashboard.html",
@@ -239,6 +229,6 @@ def admin_dashboard(
                 PaymentStatus.FAILED,
             ],
             "csrf_token": csrf_token,
-            "flash": _pop_flash(request),
+            "flash": flash,
         },
     )
