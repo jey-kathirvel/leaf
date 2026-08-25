@@ -44,6 +44,10 @@ router = APIRouter(
 )
 
 
+def _pop_admin_flash(request: Request):
+    return request.session.pop("flash", None)
+
+
 def get_current_admin(
     request: Request,
     db: Session,
@@ -227,5 +231,6 @@ def admin_dashboard(
                 PaymentStatus.FAILED,
             ],
             "csrf_token": csrf_token,
+            "flash": _pop_admin_flash(request),
         },
     )
