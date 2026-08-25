@@ -92,12 +92,27 @@ def order_detail(order_id: int, request: Request, db: Session = Depends(get_db))
         return redirect
     order = db.scalar(
         select(Order)
-        .options(selectinload(Order.customer), selectinload(Order.items), selectinload(Order.shipping_address), selectinload(Order.status_history))
+        .options(
+            selectinload(Order.customer),
+            selectinload(Order.items),
+            selectinload(Order.shipping_address),
+            selectinload(Order.billing_address),
+            selectinload(Order.status_history),
+        )
         .where(Order.id == order_id)
     )
     if not order:
         return RedirectResponse("/admin/orders", status_code=303)
-    return templates.TemplateResponse(request, "admin/orders/view.html", {"request": request, "order": order, "next_statuses": allowed_next_statuses(order.status), "flash": pop_flash(request)})
+    return templates.TemplateResponse(
+        request,
+        "admin/orders/view.html",
+        {
+            "request": request,
+            "order": order,
+            "next_statuses": allowed_next_statuses(order.status),
+            "flash": pop_flash(request),
+        },
+    )
 
 
 @router.post("/{order_id:int}/quick-status")
