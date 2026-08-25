@@ -30,16 +30,35 @@
                 </form>
             </td>
             <td>
-                <form method="post" action="/admin/orders/{{ order.id }}/quick-status" class="m-0">
+                <form method="post" action="/admin/orders/{{ order.id }}/quick-status" class="m-0 quick-order-status-form">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <input type="hidden" name="return_to" value="{{ request.url.path }}{% if request.url.query %}?{{ request.url.query }}{% endif %}">
-                    <select class="form-select form-select-sm" name="target_status" aria-label="Order status for {{ order.order_number }}" onchange="this.form.submit()">
+                    <select class="form-select form-select-sm" name="target_status" aria-label="Order status for {{ order.order_number }}" onchange="leafQuickOrderStatus(this)">
                         {% for value in statuses %}<option value="{{ value.value }}" {% if order.status == value %}selected{% endif %}>{{ value.value|title }}</option>{% endfor %}
                     </select>
+                    <div class="quick-shipping-fields mt-2" hidden>
+                        <input class="form-control form-control-sm mb-2" type="text" name="courier_name" value="{{ order.courier_name or '' }}" placeholder="Courier name (e.g. Delhivery)">
+                        <input class="form-control form-control-sm mb-2" type="text" name="tracking_number" value="{{ order.tracking_number or '' }}" placeholder="Tracking number / AWB">
+                        <button class="btn btn-primary btn-sm w-100" type="submit">Mark as shipped</button>
+                    </div>
                 </form>
             </td>
             <td class="fw-bold">₹{{ "%.2f"|format(order.grand_total|float) }}</td><td>{{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</td>
         </tr>{% else %}<tr><td colspan="8" class="text-center py-5 text-muted">No orders match these filters.</td></tr>{% endfor %}</tbody>
     </table></div></div>
 </div>
+<script>
+function leafQuickOrderStatus(select) {
+    const form = select.closest('.quick-order-status-form');
+    const shippingFields = form.querySelector('.quick-shipping-fields');
+    if (select.value === 'shipped') {
+        shippingFields.hidden = false;
+        const courier = shippingFields.querySelector('[name="courier_name"]');
+        if (courier) courier.focus();
+        return;
+    }
+    shippingFields.hidden = true;
+    form.submit();
+}
+</script>
 {% endblock %}
