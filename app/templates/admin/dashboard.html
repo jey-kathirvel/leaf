@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    {% if flash %}<div class="alert alert-{{ flash.category }}">{{ flash.message }}</div>{% endif %}
+    {% if flash %}<div class="alert alert-{{ flash.category if flash.category is defined else flash['category'] }}">{{ flash.message if flash.message is defined else flash['message'] }}</div>{% endif %}
 
     <section class="admin-metrics mb-4">
         <article class="admin-metric-card">
