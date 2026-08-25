@@ -30,7 +30,6 @@ from app.models import (
     PaymentStatus,
     Product,
 )
-from app.routers.admin_products import pop_flash
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,6 +42,18 @@ router = APIRouter(
     prefix="/admin",
     tags=["Admin"],
 )
+
+
+def _pop_flash(request: Request):
+    payload = request.session.pop("flash", None)
+    if isinstance(payload, dict):
+        class Flash:
+            pass
+        flash = Flash()
+        flash.message = payload.get("message", "")
+        flash.category = payload.get("category", "success")
+        return flash
+    return payload
 
 
 def get_current_admin(
@@ -228,6 +239,6 @@ def admin_dashboard(
                 PaymentStatus.FAILED,
             ],
             "csrf_token": csrf_token,
-            "flash": pop_flash(request),
+            "flash": _pop_flash(request),
         },
     )
