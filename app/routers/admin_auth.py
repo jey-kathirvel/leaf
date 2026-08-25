@@ -187,24 +187,14 @@ def admin_dashboard(
         )
 
     metrics = {
-        "products": db.scalar(
-            select(func.count(Product.id))
-        ) or 0,
-        "categories": db.scalar(
-            select(func.count(Category.id))
-        ) or 0,
-        "customers": db.scalar(
-            select(func.count(Customer.id))
-        ) or 0,
-        "orders": db.scalar(
-            select(func.count(Order.id))
-        ) or 0,
+        "products": db.scalar(select(func.count(Product.id))) or 0,
+        "categories": db.scalar(select(func.count(Category.id))) or 0,
+        "customers": db.scalar(select(func.count(Customer.id))) or 0,
+        "orders": db.scalar(select(func.count(Order.id))) or 0,
     }
 
     recent_orders = db.scalars(
-        select(Order)
-        .order_by(Order.created_at.desc())
-        .limit(8)
+        select(Order).order_by(Order.created_at.desc()).limit(8)
     ).all()
 
     csrf_token = request.session.get("admin_action_csrf")
