@@ -2,32 +2,187 @@
 {% block title %}{{ order.order_number }} | Leaf Admin{% endblock %}
 {% block content %}
 <div class="container-fluid py-4">
-    <a href="/admin/orders" class="text-decoration-none">← All orders</a>
-    <div class="d-flex justify-content-between align-items-center my-3"><div><h1 class="h3 mb-1">{{ order.order_number }}</h1><span class="text-muted">Placed {{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</span></div><span class="badge bg-success-subtle text-success fs-6">{{ order.status.value|title }}</span></div>
-    {% if flash %}<div class="alert alert-{{ flash.category }}">{{ flash.message }}</div>{% endif %}
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm mb-4"><div class="card-header bg-white"><h2 class="h5 mb-0">Order items</h2></div><div class="card-body">
-                {% for item in order.items %}<div class="d-flex justify-content-between border-bottom py-3"><div><strong>{{ item.product_name }}</strong><div class="text-muted small">{{ item.sku }} · Qty {{ item.quantity }}</div></div><strong>₹{{ "%.2f"|format(item.total_amount|float) }}</strong></div>{% endfor %}
-                <div class="d-flex justify-content-between pt-3"><span>Included GST</span><span>₹{{ "%.2f"|format(order.tax_amount|float) }}</span></div><div class="d-flex justify-content-between pt-2 fs-5"><strong>Total</strong><strong>₹{{ "%.2f"|format(order.grand_total|float) }}</strong></div>
-            </div></div>
-            <div class="card border-0 shadow-sm"><div class="card-header bg-white"><h2 class="h5 mb-0">Status history</h2></div><div class="card-body">
-                {% for event in order.status_history %}<div class="d-flex gap-3 border-bottom py-3"><span class="badge bg-light text-dark align-self-start">{{ event.to_status.value|title }}</span><div><strong>{% if event.from_status %}Changed from {{ event.from_status.value|title }}{% else %}Order created{% endif %}</strong>{% if event.note %}<p class="mb-1">{{ event.note }}</p>{% endif %}<small class="text-muted">{{ event.created_at.strftime('%d %b %Y, %I:%M %p') }}</small></div></div>{% else %}<p class="text-muted mb-0">No recorded status changes.</p>{% endfor %}
-            </div></div>
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+        <div>
+            <a href="/admin/orders" class="text-decoration-none">← All orders</a>
+            <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
+                <h1 class="h3 mb-0">{{ order.order_number }}</h1>
+                <span class="badge bg-success-subtle text-success fs-6">{{ order.status.value|title }}</span>
+                <span class="badge bg-light text-dark fs-6">Payment: {{ order.payment_status.value|replace('_', ' ')|title }}</span>
+            </div>
+            <span class="text-muted">Placed {{ order.created_at.strftime('%d %b %Y, %I:%M %p') }}</span>
         </div>
-        <div class="col-lg-4">
-            <form method="post" action="/admin/orders/{{ order.id }}/fulfilment" class="card border-0 shadow-sm mb-4"><div class="card-body">
-                <h2 class="h5 mb-3">Fulfilment</h2>
-                <label class="form-label">Order status</label><select class="form-select mb-3" name="target_status"><option value="{{ order.status.value }}">Keep {{ order.status.value|title }}</option>{% for status in next_statuses %}<option value="{{ status.value }}">Move to {{ status.value|title }}</option>{% endfor %}</select>
-                <label class="form-label">Courier</label><input class="form-control mb-3" name="courier_name" value="{{ order.courier_name or '' }}" placeholder="Required for shipped status">
-                <label class="form-label">Tracking number</label><input class="form-control mb-3" name="tracking_number" value="{{ order.tracking_number or '' }}" placeholder="Required for shipped status">
-                <label class="form-label">Status note</label><input class="form-control mb-3" name="status_note" placeholder="Reason or fulfilment update">
-                <label class="form-label">Internal notes</label><textarea class="form-control mb-3" name="internal_notes" rows="4">{{ order.internal_notes or '' }}</textarea>
-                <button class="btn btn-primary w-100" type="submit">Save fulfilment</button>
-                {% if order.inventory_restored_at %}<small class="d-block mt-3 text-success"><i class="bi bi-arrow-counterclockwise"></i> Inventory restored {{ order.inventory_restored_at.strftime('%d %b %Y') }}</small>{% endif %}
-            </div></form>
-            <div class="card border-0 shadow-sm mb-4"><div class="card-body"><h2 class="h5">Customer</h2><p class="mb-1"><strong>{{ order.shipping_address.full_name }}</strong></p><p class="mb-1">{{ order.customer.email }}</p><p>{{ order.shipping_address.mobile }}</p><h2 class="h5 mt-4">Delivery address</h2><p class="mb-0">{{ order.shipping_address.address_line1 }}{% if order.shipping_address.address_line2 %}<br>{{ order.shipping_address.address_line2 }}{% endif %}<br>{{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{ order.shipping_address.pincode }}<br>India</p></div></div>
-            <form method="post" action="/admin/orders/{{ order.id }}/payment" class="card border-0 shadow-sm"><div class="card-body"><h2 class="h5">Payment</h2><p class="mb-3">{{ (order.payment_method or '—')|replace('_', ' ')|title }}</p><label class="form-label">Payment status</label><select class="form-select mb-3" name="payment_status"><option value="pending" {% if order.payment_status.value == 'pending' %}selected{% endif %}>Payment Pending</option><option value="paid" {% if order.payment_status.value == 'paid' %}selected{% endif %}>Paid — externally confirmed</option><option value="failed" {% if order.payment_status.value == 'failed' %}selected{% endif %}>Failed</option></select><label class="form-label">UPI reference / UTR</label><input class="form-control mb-3" name="payment_reference" value="{{ order.payment_reference or '' }}" placeholder="Optional reference"><button class="btn btn-primary w-100" type="submit">Save payment status</button><small class="d-block text-muted mt-2">Confirm the transaction outside Leaf before marking it paid.</small></div></form>
+        <div class="text-lg-end small text-muted">
+            {% if order.tracking_number %}<div><strong>Tracking:</strong> {{ order.tracking_number }}</div>{% endif %}
+            {% if order.courier_name %}<div><strong>Courier:</strong> {{ order.courier_name }}</div>{% endif %}
+        </div>
+    </div>
+
+    {% if flash %}<div class="alert alert-{{ flash.category }}">{{ flash.message }}</div>{% endif %}
+
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h2 class="h5 mb-0">Order items</h2>
+                    <span class="text-muted small">{{ order.items|length }} item{% if order.items|length != 1 %}s{% endif %}</span>
+                </div>
+                <div class="card-body">
+                    {% for item in order.items %}
+                    <div class="row align-items-center border-bottom py-3 g-2">
+                        <div class="col-md-6">
+                            <strong>{{ item.product_name }}</strong>
+                            <div class="text-muted small">SKU: {{ item.sku }}</div>
+                        </div>
+                        <div class="col-4 col-md-2 text-md-center"><span class="text-muted small d-block">Qty</span>{{ item.quantity }}</div>
+                        <div class="col-4 col-md-2 text-md-end"><span class="text-muted small d-block">Unit</span>₹{{ "%.2f"|format(item.unit_price|float) }}</div>
+                        <div class="col-4 col-md-2 text-end"><span class="text-muted small d-block">Total</span><strong>₹{{ "%.2f"|format(item.total_amount|float) }}</strong></div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="row justify-content-end pt-3">
+                        <div class="col-md-6 col-lg-5">
+                            <div class="d-flex justify-content-between py-1"><span>Subtotal</span><span>₹{{ "%.2f"|format(order.subtotal|float) }}</span></div>
+                            <div class="d-flex justify-content-between py-1"><span>Discount</span><span>- ₹{{ "%.2f"|format(order.discount_amount|float) }}</span></div>
+                            {% if order.coupon_code %}<div class="d-flex justify-content-between py-1"><span>Coupon</span><span>{{ order.coupon_code }}</span></div>{% endif %}
+                            <div class="d-flex justify-content-between py-1"><span>Shipping</span><span>₹{{ "%.2f"|format(order.shipping_amount|float) }}</span></div>
+                            <div class="d-flex justify-content-between py-1"><span>Included GST</span><span>₹{{ "%.2f"|format(order.tax_amount|float) }}</span></div>
+                            <div class="d-flex justify-content-between pt-2 mt-2 border-top fs-5"><strong>Grand total</strong><strong>₹{{ "%.2f"|format(order.grand_total|float) }}</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white"><h2 class="h5 mb-0">Customer</h2></div>
+                        <div class="card-body">
+                            {% if order.shipping_address %}<p class="mb-1"><strong>{{ order.shipping_address.full_name }}</strong></p>{% endif %}
+                            <p class="mb-1"><strong>Email:</strong> {{ order.customer.email if order.customer else 'Guest order' }}</p>
+                            {% if order.shipping_address %}<p class="mb-0"><strong>Mobile:</strong> {{ order.shipping_address.mobile }}</p>{% endif %}
+                            {% if order.customer_notes %}<hr><div class="text-muted small mb-1">Customer notes</div><p class="mb-0">{{ order.customer_notes }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white"><h2 class="h5 mb-0">Payment details</h2></div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2"><span>Method</span><strong>{{ (order.payment_method or '—')|replace('_', ' ')|title }}</strong></div>
+                            <div class="d-flex justify-content-between mb-2"><span>Status</span><strong>{{ order.payment_status.value|replace('_', ' ')|title }}</strong></div>
+                            <div class="d-flex justify-content-between"><span>Reference / UTR</span><strong>{{ order.payment_reference or '—' }}</strong></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white"><h2 class="h5 mb-0">Shipping address</h2></div>
+                        <div class="card-body">
+                            {% if order.shipping_address %}
+                            <p class="mb-1"><strong>{{ order.shipping_address.full_name }}</strong></p>
+                            <p class="mb-1">{{ order.shipping_address.mobile }}</p>
+                            <p class="mb-0">
+                                {{ order.shipping_address.address_line1 }}<br>
+                                {% if order.shipping_address.address_line2 %}{{ order.shipping_address.address_line2 }}<br>{% endif %}
+                                {% if order.shipping_address.landmark %}Landmark: {{ order.shipping_address.landmark }}<br>{% endif %}
+                                {{ order.shipping_address.city }}, {{ order.shipping_address.state }} - {{ order.shipping_address.pincode }}<br>
+                                {{ order.shipping_address.country or 'India' }}
+                            </p>
+                            {% else %}<p class="text-muted mb-0">No shipping address recorded.</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-white"><h2 class="h5 mb-0">Billing address</h2></div>
+                        <div class="card-body">
+                            {% set billing = order.billing_address or order.shipping_address %}
+                            {% if billing %}
+                            {% if not order.billing_address %}<div class="text-muted small mb-2">Same as shipping address</div>{% endif %}
+                            <p class="mb-1"><strong>{{ billing.full_name }}</strong></p>
+                            <p class="mb-1">{{ billing.mobile }}</p>
+                            <p class="mb-0">
+                                {{ billing.address_line1 }}<br>
+                                {% if billing.address_line2 %}{{ billing.address_line2 }}<br>{% endif %}
+                                {% if billing.landmark %}Landmark: {{ billing.landmark }}<br>{% endif %}
+                                {{ billing.city }}, {{ billing.state }} - {{ billing.pincode }}<br>
+                                {{ billing.country or 'India' }}
+                            </p>
+                            {% else %}<p class="text-muted mb-0">No billing address recorded.</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white"><h2 class="h5 mb-0">Status history</h2></div>
+                <div class="card-body">
+                    {% for event in order.status_history %}
+                    <div class="d-flex gap-3 border-bottom py-3">
+                        <span class="badge bg-light text-dark align-self-start">{{ event.to_status.value|title }}</span>
+                        <div>
+                            <strong>{% if event.from_status %}Changed from {{ event.from_status.value|title }}{% else %}Order created{% endif %}</strong>
+                            {% if event.note %}<p class="mb-1">{{ event.note }}</p>{% endif %}
+                            <small class="text-muted">{{ event.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                        </div>
+                    </div>
+                    {% else %}<p class="text-muted mb-0">No recorded status changes.</p>{% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white"><h2 class="h5 mb-0">Shipping & fulfilment</h2></div>
+                <div class="card-body">
+                    <div class="mb-3"><div class="text-muted small">Courier</div><strong>{{ order.courier_name or 'Not assigned' }}</strong></div>
+                    <div class="mb-3"><div class="text-muted small">Tracking / AWB</div><strong>{{ order.tracking_number or 'Not assigned' }}</strong></div>
+                    <div class="row g-2 small">
+                        <div class="col-6"><div class="text-muted">Status changed</div><strong>{{ order.status_changed_at.strftime('%d %b %Y, %I:%M %p') if order.status_changed_at else '—' }}</strong></div>
+                        <div class="col-6"><div class="text-muted">Shipped</div><strong>{{ order.shipped_at.strftime('%d %b %Y, %I:%M %p') if order.shipped_at else '—' }}</strong></div>
+                        <div class="col-6"><div class="text-muted">Delivered</div><strong>{{ order.delivered_at.strftime('%d %b %Y, %I:%M %p') if order.delivered_at else '—' }}</strong></div>
+                        <div class="col-6"><div class="text-muted">Cancelled</div><strong>{{ order.cancelled_at.strftime('%d %b %Y, %I:%M %p') if order.cancelled_at else '—' }}</strong></div>
+                        <div class="col-6"><div class="text-muted">Returned</div><strong>{{ order.returned_at.strftime('%d %b %Y, %I:%M %p') if order.returned_at else '—' }}</strong></div>
+                        <div class="col-6"><div class="text-muted">Inventory restored</div><strong>{{ order.inventory_restored_at.strftime('%d %b %Y, %I:%M %p') if order.inventory_restored_at else '—' }}</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            <form method="post" action="/admin/orders/{{ order.id }}/fulfilment" class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h2 class="h5 mb-3">Update fulfilment</h2>
+                    <label class="form-label">Order status</label>
+                    <select class="form-select mb-3" name="target_status">
+                        <option value="{{ order.status.value }}">Keep {{ order.status.value|title }}</option>
+                        {% for status in next_statuses %}<option value="{{ status.value }}">Move to {{ status.value|title }}</option>{% endfor %}
+                    </select>
+                    <label class="form-label">Courier</label><input class="form-control mb-3" name="courier_name" value="{{ order.courier_name or '' }}" placeholder="Required for shipped status">
+                    <label class="form-label">Tracking number</label><input class="form-control mb-3" name="tracking_number" value="{{ order.tracking_number or '' }}" placeholder="Required for shipped status">
+                    <label class="form-label">Status note</label><input class="form-control mb-3" name="status_note" placeholder="Reason or fulfilment update">
+                    <label class="form-label">Internal notes</label><textarea class="form-control mb-3" name="internal_notes" rows="4">{{ order.internal_notes or '' }}</textarea>
+                    <button class="btn btn-primary w-100" type="submit">Save fulfilment</button>
+                </div>
+            </form>
+
+            <form method="post" action="/admin/orders/{{ order.id }}/payment" class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">Update payment</h2>
+                    <p class="mb-3">{{ (order.payment_method or '—')|replace('_', ' ')|title }}</p>
+                    <label class="form-label">Payment status</label>
+                    <select class="form-select mb-3" name="payment_status">
+                        <option value="pending" {% if order.payment_status.value == 'pending' %}selected{% endif %}>Payment Pending</option>
+                        <option value="paid" {% if order.payment_status.value == 'paid' %}selected{% endif %}>Paid — externally confirmed</option>
+                        <option value="failed" {% if order.payment_status.value == 'failed' %}selected{% endif %}>Failed</option>
+                    </select>
+                    <label class="form-label">UPI reference / UTR</label><input class="form-control mb-3" name="payment_reference" value="{{ order.payment_reference or '' }}" placeholder="Optional reference">
+                    <button class="btn btn-primary w-100" type="submit">Save payment status</button>
+                    <small class="d-block text-muted mt-2">Confirm the transaction outside Leaf before marking it paid.</small>
+                </div>
+            </form>
         </div>
     </div>
 </div>
