@@ -90,6 +90,7 @@ async def offline_page():
 # Router imports are intentionally placed after application initialization
 # and route declarations to prevent circular-import registration issues.
 from app.routers.admin_auth import router as admin_router
+from app.routers.admin_product_delete import router as admin_product_delete_router
 from app.routers import admin_products
 from app.routers.store import router as store_router
 from app.routers.checkout import router as checkout_router
@@ -100,6 +101,9 @@ from app.routers.customer_account import router as customer_account_router
 app.include_router(store_router)
 app.include_router(checkout_router)
 app.include_router(admin_router)
+# Register this before the legacy admin_products router so product-delete POSTs
+# always use the guarded direct-update handler.
+app.include_router(admin_product_delete_router)
 app.include_router(admin_products.router)
 app.include_router(admin_orders_router)
 app.include_router(admin_operations_router)
