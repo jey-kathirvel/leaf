@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from app.core.security import generate_csrf_token, verify_password
 from app.db.deps import get_db
 from app.models import AdminUser, Category, Customer, Order, OrderStatus, PaymentStatus, Product
+from app.routers.admin_products import pop_flash
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -90,6 +91,6 @@ def admin_dashboard(request: Request, db: Session = Depends(get_db)):
             "statuses": list(OrderStatus),
             "payment_statuses": [PaymentStatus.PENDING, PaymentStatus.PAID, PaymentStatus.FAILED],
             "csrf_token": csrf_token,
-            "flash": request.session.pop("flash_message", None),
+            "flash": pop_flash(request),
         },
     )
