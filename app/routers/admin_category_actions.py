@@ -14,6 +14,50 @@ router = APIRouter(prefix="/admin/categories", tags=["Admin Category Actions"])
 templates = Jinja2Templates(directory="app/templates")
 
 
+def active_product_count(db: Session, category_id: int) -> int:
+    """Count only products that still exist in the active catalogue."""
+    return (
+        db.scalar(
+            select(func.count(Product.id)).where(
+                Product.category_id == category_id,
+                Product.deleted_at.is_(None),
+            )
+        )
+        or 0
+    )
+
+
+@router.get("", response_class=HTMLResponse)
+def category_list_page(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Category list with counts that exclude soft-deleted products."""
+    if redirect := require_admin(request):
+        return redirect
+
+    items = db.execute(
+        select(Category, func.count(Product.id).label("product_count"))
+        .outerjoin(
+            Product,
+            (Product.category_id == Category.id)
+            & Product.deleted_at.is_(None),
+        )
+        .group_by(Category.id)
+        .order_by(Category.sort_order, Category.name)
+    ).all()
+
+    return templates.TemplateResponse(
+        request,
+        "admin/categories/list.html",
+        {
+            "request": request,
+            "items": items,
+            "flash": pop_flash(request),
+        },
+    )
+
+
 @router.get("/{category_id:int}/edit", response_class=HTMLResponse)
 def category_edit_page(
     category_id: int,
@@ -31,9 +75,7 @@ def category_edit_page(
             status_code=status.HTTP_303_SEE_OTHER,
         )
 
-    product_count = db.scalar(
-        select(func.count(Product.id)).where(Product.category_id == category_id)
-    ) or 0
+    product_count = active_product_count(db, category_id)
 
     return templates.TemplateResponse(
         request,
@@ -64,20 +106,30 @@ def category_delete(
             status_code=status.HTTP_303_SEE_OTHER,
         )
 
-    product_count = db.scalar(
-        select(func.count(Product.id)).where(Product.category_id == category_id)
-    ) or 0
+    product_count = active_product_count(db, category_id)
 
     if product_count:
         set_flash(
             request,
-            f"Cannot delete '{category.name}' because {product_count} product(s) are assigned to it. Reassign or delete those products first.",
+            f"Cannot delete '{category.name}' because {product_count} active product(s) are assigned to it. Reassign or delete those products first.",
             "danger",
         )
         return RedirectResponse(
             "/admin/categories",
             status_code=status.HTTP_303_SEE_OTHER,
         )
+
+    # Soft-deleted products may still retain the historical category foreign key.
+    # Detach those historical rows before deleting the category so the FK does not
+    # block removal while preserving the product/order history itself.
+    deleted_products = db.scalars(
+        select(Product).where(
+            Product.category_id == category_id,
+            Product.deleted_at.is_not(None),
+        )
+    ).all()
+    for product in deleted_products:
+        product.category_id = None
 
     category_name = category.name
     try:
