@@ -235,20 +235,233 @@ h1, h2, h3 { color: var(--ink); }
 .homepage-offer-iframe-wrap { border-color: rgba(56,189,248,.28); background: rgba(240,249,255,.82); }
 
 @media (max-width: 760px) {
+    html,
+    body.leaf-organic {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: clip;
+    }
+
+    body.leaf-organic {
+        background-attachment: scroll;
+    }
+
+    .container {
+        width: calc(100% - 28px) !important;
+        max-width: none !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
     .site-header {
         top: 7px;
         width: calc(100% - 14px);
-        margin-top: 7px;
+        max-width: calc(100% - 14px);
+        margin: 7px auto 0;
         border-radius: 18px;
+        overflow: visible;
     }
+
+    .site-header .header-inner {
+        width: 100% !important;
+        min-height: 62px;
+        padding: 7px 9px;
+        gap: 6px;
+        margin: 0 !important;
+    }
+
+    .site-header .brand {
+        min-width: 0;
+        gap: 8px;
+        flex: 0 1 auto;
+    }
+
+    .site-header .brand-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        flex: 0 0 38px;
+    }
+
+    .site-header .brand-copy strong {
+        font-size: 21px;
+        white-space: nowrap;
+    }
+
+    .site-header .brand-copy small,
+    .site-header .action-label,
+    .site-header .pwa-install-button {
+        display: none !important;
+    }
+
+    .header-actions {
+        min-width: 0;
+        gap: 2px;
+        margin-left: auto;
+        flex: 0 0 auto;
+    }
+
+    .site-header .icon-action,
+    .site-header .cart-action,
+    .site-header .mobile-menu-button {
+        width: 36px;
+        min-width: 36px;
+        height: 36px;
+        min-height: 36px;
+        padding: 0;
+        justify-content: center;
+        border-radius: 11px;
+    }
+
+    .site-header .cart-action {
+        position: relative;
+        font-size: 0;
+    }
+
+    .site-header .cart-count {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 4px;
+        font-size: 9px;
+        border: 2px solid rgba(247,252,255,.95);
+    }
+
+    .mobile-menu-button {
+        display: block;
+        order: 3;
+        margin-left: 2px;
+        flex: 0 0 36px;
+        background: rgba(255,255,255,.70);
+    }
+
+    .mobile-menu-button span {
+        width: 16px;
+        margin: 4px auto;
+    }
+
     .main-nav {
-        top: calc(var(--header-h) + 16px);
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
         border-color: rgba(255,255,255,.72);
-        background: rgba(247,252,255,.90);
+        background: rgba(247,252,255,.94);
         backdrop-filter: blur(20px) saturate(150%);
         -webkit-backdrop-filter: blur(20px) saturate(150%);
     }
+
     .main-nav a:hover { background: #dff5ff; }
-    .marketing-promo-strip { width: calc(100% - 14px); border-radius: 20px; }
-    .site-footer { margin: 24px 7px 7px; border-radius: 24px; }
+
+    main,
+    main > *,
+    .section,
+    .marketing-perks,
+    .marketing-organic-spotlight,
+    .organic-products,
+    .organic-collections {
+        max-width: 100%;
+    }
+
+    .section {
+        padding-top: 56px;
+        padding-bottom: 56px;
+    }
+
+    .marketing-perks {
+        padding-top: 40px;
+        padding-bottom: 48px;
+    }
+
+    .marketing-perk-grid,
+    .marketing-category-grid,
+    .organic-collection-grid,
+    .organic-product-grid,
+    .catalogue-product-grid,
+    .related-products .product-grid,
+    .category-grid,
+    .contact-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+        width: 100%;
+        gap: 16px;
+    }
+
+    .marketing-perk,
+    .marketing-category-card,
+    .category-card,
+    .cart-item,
+    .checkout-card,
+    .account-auth-card,
+    .account-welcome,
+    .account-order-card,
+    .contact-card {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .marketing-perk {
+        padding: 24px 18px;
+        border-radius: 18px;
+    }
+
+    .section-intro {
+        margin-bottom: 24px;
+    }
+
+    .section-intro h2 {
+        font-size: clamp(1.85rem, 9vw, 2.4rem);
+        overflow-wrap: anywhere;
+    }
+
+    .marketing-promo-strip {
+        width: calc(100% - 14px);
+        max-width: calc(100% - 14px);
+        border-radius: 20px;
+    }
+
+    .catalogue-hero,
+    .policy-hero {
+        border-radius: 0 0 26px 26px;
+    }
+
+    .product-detail-grid,
+    .cart-layout,
+    .checkout-layout,
+    .catalogue-layout,
+    .policy-layout,
+    .account-layout,
+    .order-account-detail {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .site-footer {
+        margin: 24px 7px 7px;
+        border-radius: 24px;
+    }
+}
+
+@media (max-width: 430px) {
+    .site-header .header-inner {
+        padding-inline: 7px;
+        gap: 4px;
+    }
+
+    .site-header .brand-copy strong { font-size: 19px; }
+    .site-header .brand-icon { width: 36px; height: 36px; flex-basis: 36px; }
+
+    .site-header .icon-action,
+    .site-header .cart-action,
+    .site-header .mobile-menu-button {
+        width: 34px;
+        min-width: 34px;
+        height: 34px;
+        min-height: 34px;
+    }
+
+    .section { padding-top: 48px; padding-bottom: 48px; }
+    .marketing-perks { padding-top: 32px; padding-bottom: 42px; }
 }
