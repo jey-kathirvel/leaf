@@ -223,11 +223,7 @@ def admin_dashboard(
             "metrics": metrics,
             "recent_orders": recent_orders,
             "statuses": list(OrderStatus),
-            "payment_statuses": [
-                PaymentStatus.PENDING,
-                PaymentStatus.PAID,
-                PaymentStatus.FAILED,
-            ],
+            "payment_statuses": [PaymentStatus.PENDING, PaymentStatus.PAID, PaymentStatus.FAILED],
             "csrf_token": csrf_token,
             "flash": flash,
         },
