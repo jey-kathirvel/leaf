@@ -16,13 +16,47 @@ ALLOWED_TRANSITIONS = {
     OrderStatus.PROCESSING: {OrderStatus.SHIPPED, OrderStatus.CANCELLED},
     OrderStatus.SHIPPED: {OrderStatus.DELIVERED},
     OrderStatus.DELIVERED: {OrderStatus.RETURNED},
-    OrderStatus.CANCELLED: set(),
-    OrderStatus.RETURNED: set(),
+    OrderStatus.CANCELLED: {OrderStatus.PROCESSING},
+    OrderStatus.RETURNED: {OrderStatus.PROCESSING},
 }
 
 
 def allowed_next_statuses(status: OrderStatus) -> list[OrderStatus]:
     return sorted(ALLOWED_TRANSITIONS.get(status, set()), key=lambda value: value.value)
+
+
+def _tracked_inventory(db: Session, product_id: int) -> Inventory | None:
+    tracks_inventory = db.scalar(select(Product.track_inventory).where(Product.id == product_id))
+    if not tracks_inventory:
+        return None
+    return db.scalar(select(Inventory).where(Inventory.product_id == product_id).with_for_update())
+
+
+def _restore_inventory(db: Session, order: Order) -> None:
+    for item in order.items:
+        if not item.product_id:
+            continue
+        inventory = _tracked_inventory(db, item.product_id)
+        if inventory:
+            inventory.quantity += item.quantity
+
+
+def _reserve_inventory_for_reopened_order(db: Session, order: Order) -> None:
+    inventory_rows: list[tuple[Inventory, int]] = []
+    for item in order.items:
+        if not item.product_id:
+            continue
+        inventory = _tracked_inventory(db, item.product_id)
+        if not inventory:
+            continue
+        if inventory.quantity < item.quantity:
+            raise OrderWorkflowError(
+                f"Cannot reopen this order: insufficient stock for {item.product_name or 'an order item'}."
+            )
+        inventory_rows.append((inventory, item.quantity))
+
+    for inventory, quantity in inventory_rows:
+        inventory.quantity -= quantity
 
 
 def update_fulfilment(
@@ -59,6 +93,17 @@ def update_fulfilment(
 
     if new_status != old_status:
         now = datetime.now(timezone.utc)
+
+        # Cancelled/returned orders have already had stock restored. Reopening
+        # them must reserve the same stock again before processing continues.
+        if (
+            old_status in {OrderStatus.CANCELLED, OrderStatus.RETURNED}
+            and new_status == OrderStatus.PROCESSING
+            and order.inventory_restored_at is not None
+        ):
+            _reserve_inventory_for_reopened_order(db, order)
+            order.inventory_restored_at = None
+
         order.status = new_status
         order.status_changed_at = now
         if new_status == OrderStatus.SHIPPED:
@@ -69,19 +114,23 @@ def update_fulfilment(
             order.cancelled_at = now
         elif new_status == OrderStatus.RETURNED:
             order.returned_at = now
+        elif new_status == OrderStatus.PROCESSING:
+            if old_status == OrderStatus.CANCELLED:
+                order.cancelled_at = None
+            if old_status == OrderStatus.RETURNED:
+                order.returned_at = None
 
-        db.add(OrderStatusHistory(order_id=order.id, from_status=old_status, to_status=new_status, note=status_note.strip() or None))
+        db.add(
+            OrderStatusHistory(
+                order_id=order.id,
+                from_status=old_status,
+                to_status=new_status,
+                note=status_note.strip() or None,
+            )
+        )
 
         if new_status in {OrderStatus.CANCELLED, OrderStatus.RETURNED} and order.inventory_restored_at is None:
-            for item in order.items:
-                if not item.product_id:
-                    continue
-                tracks_inventory = db.scalar(select(Product.track_inventory).where(Product.id == item.product_id))
-                if not tracks_inventory:
-                    continue
-                inventory = db.scalar(select(Inventory).where(Inventory.product_id == item.product_id).with_for_update())
-                if inventory:
-                    inventory.quantity += item.quantity
+            _restore_inventory(db, order)
             order.inventory_restored_at = now
 
     db.commit()
