@@ -20,49 +20,22 @@
     {% if flash %}<div class="alert alert-{{ flash.category }}">{{ flash.message }}</div>{% endif %}
 
     <section class="admin-metrics mb-4">
-        <article class="admin-metric-card">
-            <span>Products</span>
-            <strong>{{ metrics.products }}</strong>
-            <small>Store catalogue</small>
-        </article>
-        <article class="admin-metric-card">
-            <span>Categories</span>
-            <strong>{{ metrics.categories }}</strong>
-            <small>Active organisation</small>
-        </article>
-        <article class="admin-metric-card">
-            <span>Customers</span>
-            <strong>{{ metrics.customers }}</strong>
-            <small>Registered shoppers</small>
-        </article>
-        <article class="admin-metric-card">
-            <span>Orders</span>
-            <strong>{{ metrics.orders }}</strong>
-            <small>Total order records</small>
-        </article>
+        <article class="admin-metric-card"><span>Products</span><strong>{{ metrics.products }}</strong><small>Store catalogue</small></article>
+        <article class="admin-metric-card"><span>Categories</span><strong>{{ metrics.categories }}</strong><small>Active organisation</small></article>
+        <article class="admin-metric-card"><span>Customers</span><strong>{{ metrics.customers }}</strong><small>Registered shoppers</small></article>
+        <article class="admin-metric-card"><span>Orders</span><strong>{{ metrics.orders }}</strong><small>Total order records</small></article>
     </section>
 
     <section class="admin-panel">
         <div class="admin-panel-header">
-            <div>
-                <span class="admin-eyebrow">Latest activity</span>
-                <h2>Recent orders</h2>
-            </div>
+            <div><span class="admin-eyebrow">Latest activity</span><h2>Recent orders</h2></div>
             <a href="/admin/orders">View all orders</a>
         </div>
 
         {% if recent_orders %}
         <div class="admin-table-wrapper">
             <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Order</th>
-                        <th>Order status</th>
-                        <th>Payment status</th>
-                        <th>Total</th>
-                        <th>Created</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Order</th><th>Order status</th><th>Payment status</th><th>Total</th><th>Created</th></tr></thead>
                 <tbody>
                     {% for order in recent_orders %}
                     <tr>
@@ -93,11 +66,7 @@
             </table>
         </div>
         {% else %}
-        <div class="admin-empty-state">
-            <span>Orders</span>
-            <h3>No orders yet</h3>
-            <p>New customer orders will appear here.</p>
-        </div>
+        <div class="admin-empty-state"><span>Orders</span><h3>No orders yet</h3><p>New customer orders will appear here.</p></div>
         {% endif %}
     </section>
 </div>
