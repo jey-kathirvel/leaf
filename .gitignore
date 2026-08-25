@@ -12,3 +12,30 @@ htmlcov/
 test-uploads/
 app/uploads/*
 !app/uploads/.gitkeep
+
+# =====================================================
+# Python generated files
+# =====================================================
+*$py.class
+
+# Virtual environments
+env/
+ENV/
+
+# Environment / secrets
+
+# Python tooling
+.mypy_cache/
+.ruff_cache/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary / backup files
+*.bak.*
+*.tmp
+*.swp
+*~
