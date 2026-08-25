@@ -2,38 +2,18 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    Form,
-    Request,
-)
-from fastapi.responses import (
-    HTMLResponse,
-    RedirectResponse,
-)
+from fastapi import APIRouter, Depends, Form, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.core.security import (
-    generate_csrf_token,
-    verify_password,
-)
+from app.core.security import generate_csrf_token, verify_password
 from app.db.deps import get_db
-from app.models import (
-    AdminUser,
-    Category,
-    Customer,
-    Order,
-    OrderStatus,
-    PaymentStatus,
-    Product,
-)
+from app.models import AdminUser, Category, Customer, Order, OrderStatus, PaymentStatus, Product
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -42,12 +22,7 @@ def get_current_admin(request: Request, db: Session) -> AdminUser | None:
     admin_id = request.session.get("admin_user_id")
     if not admin_id:
         return None
-    admin = db.scalar(
-        select(AdminUser).where(
-            AdminUser.id == int(admin_id),
-            AdminUser.is_active.is_(True),
-        )
-    )
+    admin = db.scalar(select(AdminUser).where(AdminUser.id == int(admin_id), AdminUser.is_active.is_(True)))
     if admin is None:
         request.session.clear()
     return admin
@@ -76,17 +51,11 @@ def admin_login(
 ):
     session_csrf = request.session.pop("admin_login_csrf", None)
     if not session_csrf or not csrf_token or csrf_token != session_csrf:
-        return RedirectResponse(
-            url="/admin/login?error=" + quote("Invalid or expired login request."),
-            status_code=303,
-        )
+        return RedirectResponse(url="/admin/login?error=" + quote("Invalid or expired login request."), status_code=303)
     normalized_email = email.strip().lower()
     admin = db.scalar(select(AdminUser).where(func.lower(AdminUser.email) == normalized_email))
     if admin is None or not admin.is_active or not verify_password(password, admin.password_hash):
-        return RedirectResponse(
-            url="/admin/login?error=" + quote("Invalid email or password."),
-            status_code=303,
-        )
+        return RedirectResponse(url="/admin/login?error=" + quote("Invalid email or password."), status_code=303)
     admin.last_login_at = datetime.now(timezone.utc)
     db.commit()
     request.session.clear()
