@@ -17,6 +17,8 @@
         </div>
     </div>
 
+    {% if flash %}<div class="alert alert-{{ flash.category }}">{{ flash.message }}</div>{% endif %}
+
     <section class="admin-metrics mb-4">
         <article class="admin-metric-card">
             <span>Products</span>
@@ -55,8 +57,8 @@
                 <thead>
                     <tr>
                         <th>Order</th>
-                        <th>Status</th>
-                        <th>Payment</th>
+                        <th>Order status</th>
+                        <th>Payment status</th>
                         <th>Total</th>
                         <th>Created</th>
                     </tr>
@@ -64,9 +66,25 @@
                 <tbody>
                     {% for order in recent_orders %}
                     <tr>
-                        <td><strong>{{ order.order_number }}</strong></td>
-                        <td>{{ order.status.value|title }}</td>
-                        <td>{{ order.payment_status.value|title }}</td>
+                        <td><a class="text-decoration-none" href="/admin/orders/{{ order.id }}"><strong>{{ order.order_number }}</strong></a></td>
+                        <td>
+                            <form method="post" action="/admin/orders/{{ order.id }}/quick-status" class="m-0">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <input type="hidden" name="return_to" value="/admin">
+                                <select class="form-select form-select-sm" name="target_status" aria-label="Order status for {{ order.order_number }}" onchange="this.form.submit()">
+                                    {% for value in statuses %}<option value="{{ value.value }}" {% if order.status == value %}selected{% endif %}>{{ value.value|title }}</option>{% endfor %}
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <form method="post" action="/admin/orders/{{ order.id }}/quick-payment" class="m-0">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                                <input type="hidden" name="return_to" value="/admin">
+                                <select class="form-select form-select-sm" name="payment_status" aria-label="Payment status for {{ order.order_number }}" onchange="this.form.submit()">
+                                    {% for value in payment_statuses %}<option value="{{ value.value }}" {% if order.payment_status == value %}selected{% endif %}>{{ value.value|title }}</option>{% endfor %}
+                                </select>
+                            </form>
+                        </td>
                         <td>₹{{ "%.2f"|format(order.grand_total) }}</td>
                         <td>{{ order.created_at.strftime("%d %b %Y") }}</td>
                     </tr>
