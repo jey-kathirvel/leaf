@@ -48,16 +48,38 @@ def test_order_moves_through_fulfilment_with_tracking() -> None:
         db.close()
 
 
-def test_cancellation_restores_inventory_once() -> None:
+def test_cancelled_order_can_reopen_and_reserves_inventory_again() -> None:
     db, product, order = seeded_order()
     try:
         assert product.inventory.quantity == 4
         cancelled = update_fulfilment(db, order.id, "cancelled", status_note="Customer requested cancellation")
         assert cancelled.inventory_restored_at is not None
         assert product.inventory.quantity == 5
-        with pytest.raises(OrderWorkflowError):
-            update_fulfilment(db, order.id, "processing")
+
+        reopened = update_fulfilment(db, order.id, "processing", status_note="Cancellation reversed")
+        assert reopened.status == OrderStatus.PROCESSING
+        assert reopened.inventory_restored_at is None
+        assert reopened.cancelled_at is None
+        assert product.inventory.quantity == 4
+    finally:
+        db.close()
+
+
+def test_returned_order_can_reopen_and_reserves_inventory_again() -> None:
+    db, product, order = seeded_order()
+    try:
+        update_fulfilment(db, order.id, "processing")
+        update_fulfilment(db, order.id, "shipped", courier_name="BlueDart", tracking_number="TRACK123")
+        update_fulfilment(db, order.id, "delivered", courier_name="BlueDart", tracking_number="TRACK123")
+        returned = update_fulfilment(db, order.id, "returned")
+        assert returned.inventory_restored_at is not None
         assert product.inventory.quantity == 5
+
+        reopened = update_fulfilment(db, order.id, "processing", status_note="Return reversed")
+        assert reopened.status == OrderStatus.PROCESSING
+        assert reopened.inventory_restored_at is None
+        assert reopened.returned_at is None
+        assert product.inventory.quantity == 4
     finally:
         db.close()
 
