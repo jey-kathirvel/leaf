@@ -119,20 +119,25 @@ def category_delete(
             status_code=status.HTTP_303_SEE_OTHER,
         )
 
-    # Soft-deleted products may still retain the historical category foreign key.
-    # Detach those historical rows before deleting the category so the FK does not
-    # block removal while preserving the product/order history itself.
-    deleted_products = db.scalars(
-        select(Product).where(
-            Product.category_id == category_id,
-            Product.deleted_at.is_not(None),
-        )
-    ).all()
-    for product in deleted_products:
-        product.category_id = None
-
     category_name = category.name
+
     try:
+        # Product deletion in Leaf is normally a soft delete, so historical
+        # product rows can still hold the category FK even though they are no
+        # longer part of the catalogue. Once a category has zero active
+        # products, permanently remove only those already-soft-deleted product
+        # rows before deleting the category. OrderItem.product_id uses SET NULL
+        # and order-item snapshot fields keep the historical order details.
+        deleted_products = db.scalars(
+            select(Product).where(
+                Product.category_id == category_id,
+                Product.deleted_at.is_not(None),
+            )
+        ).all()
+        for product in deleted_products:
+            db.delete(product)
+
+        db.flush()
         db.delete(category)
         db.commit()
         set_flash(request, f"Category '{category_name}' deleted.")
