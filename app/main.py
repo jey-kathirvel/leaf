@@ -61,6 +61,7 @@ from app.routers.checkout import router as checkout_router
 from app.routers.admin_orders import router as admin_orders_router
 from app.routers.admin_operations import router as admin_operations_router
 from app.routers.customer_account import router as customer_account_router
+from app.routers.account_addresses import router as account_addresses_router
 
 app.include_router(store_router)
 app.include_router(checkout_router)
@@ -72,3 +73,4 @@ app.include_router(admin_category_actions_router)
 app.include_router(admin_configuration_router)
 app.include_router(admin_operations_router)
 app.include_router(customer_account_router)
+app.include_router(account_addresses_router)
