@@ -1,0 +1,76 @@
+/* Leaf homepage media: preserve the complete uploaded image inside every marketing frame. */
+
+/* Hero is a background image, so use contain rather than cover. */
+.organic-hero {
+    background:
+        radial-gradient(900px 520px at 20% 20%, rgba(14, 165, 233, .18), transparent 65%),
+        linear-gradient(145deg, #062f49, #075985);
+}
+
+.organic-hero-media {
+    background-size: contain !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    transform: none !important;
+    animation: none !important;
+}
+
+/* Uploaded homepage card imagery: keep the entire image visible. */
+.organic-hero-card,
+.marketing-organic-visual,
+.marketing-category-card {
+    background:
+        radial-gradient(circle at 50% 30%, rgba(224, 247, 255, .96), rgba(239, 250, 255, .88) 58%, rgba(214, 240, 252, .82));
+}
+
+.organic-hero-card img,
+.marketing-organic-visual img,
+.marketing-category-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain !important;
+    object-position: center center !important;
+}
+
+.organic-hero-card img {
+    padding: 8px;
+}
+
+.marketing-organic-visual {
+    aspect-ratio: 4 / 5;
+    display: grid;
+    place-items: center;
+}
+
+.marketing-organic-visual img {
+    aspect-ratio: auto !important;
+    max-height: 100%;
+    padding: 12px;
+}
+
+.marketing-category-card {
+    overflow: hidden;
+}
+
+.marketing-category-card img {
+    aspect-ratio: 4 / 5;
+    padding: 10px;
+}
+
+/* Keep text overlays readable without relying on a cropped photo. */
+.organic-hero-card-copy {
+    background: linear-gradient(180deg, transparent 0%, rgba(3, 55, 84, .82) 72%, rgba(3, 55, 84, .94) 100%);
+}
+
+@media (max-width: 760px) {
+    .organic-hero-media {
+        background-size: contain !important;
+        background-position: center top !important;
+    }
+
+    .organic-hero-card img,
+    .marketing-organic-visual img,
+    .marketing-category-card img {
+        padding: 6px;
+    }
+}
