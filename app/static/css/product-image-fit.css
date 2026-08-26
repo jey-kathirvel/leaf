@@ -1,0 +1,36 @@
+/* Product detail gallery — preserve the full uploaded image without cropping */
+.product-main-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 35%, rgba(255,255,255,.92), rgba(232,247,253,.78) 62%, rgba(218,241,251,.68) 100%) !important;
+}
+
+.product-main-image img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain !important;
+    object-position: center center !important;
+}
+
+.product-thumbnails button {
+    overflow: hidden;
+    background: rgba(239,250,255,.78);
+}
+
+.product-thumbnails img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain !important;
+    object-position: center center;
+}
+
+@media (max-width: 760px) {
+    .product-main-image {
+        min-height: 360px;
+    }
+}
