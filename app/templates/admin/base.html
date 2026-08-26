@@ -19,14 +19,9 @@
             <span class="admin-brand-logo">
                 <svg viewBox="0 0 24 24"><path d="M19.8 3.2C13.3 3.5 7.1 6.1 5 11.1c-1.2 2.8-.2 5.5 1.7 7.1 1.4-3.8 4.3-6.8 8.3-8.8-3.2 2.6-5.5 5.8-6.6 9.5 2.2.8 4.9.2 6.8-1.8 3.5-3.7 4.4-9.2 4.6-13.9Z"/></svg>
             </span>
-            <span>
-                <strong>Leaf</strong>
-                <small>Organic Store Admin</small>
-            </span>
+            <span><strong>Leaf</strong><small>Organic Store Admin</small></span>
         </a>
-        <button class="admin-nav-toggle" id="adminNavToggle" type="button" aria-label="Open admin menu" aria-expanded="false">
-            <span></span><span></span><span></span>
-        </button>
+        <button class="admin-nav-toggle" id="adminNavToggle" type="button" aria-label="Open admin menu" aria-expanded="false"><span></span><span></span><span></span></button>
         <nav class="admin-top-nav" id="adminTopNav">
             <a href="/admin">Dashboard</a>
             <div class="dropdown">
@@ -52,15 +47,13 @@
                 <a href="#" class="dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Configuration</a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><span class="dropdown-header">Store configuration</span></li>
-                    <li><a class="dropdown-item disabled" href="#" aria-disabled="true"><i class="bi bi-truck me-1"></i>Shipping <small class="ms-auto">Coming soon</small></a></li>
-                    <li><a class="dropdown-item disabled" href="#" aria-disabled="true"><i class="bi bi-receipt me-1"></i>Tax <small class="ms-auto">Coming soon</small></a></li>
+                    <li><a class="dropdown-item" href="/admin/configuration#shipping"><i class="bi bi-truck me-1"></i>Shipping</a></li>
+                    <li><a class="dropdown-item" href="/admin/configuration#tax"><i class="bi bi-receipt me-1"></i>Tax / GST</a></li>
                 </ul>
             </div>
             <a href="/" class="admin-storefront-link"><i class="bi bi-shop me-1"></i>Storefront</a>
         </nav>
-        <form method="post" action="/admin/logout" class="admin-signout">
-            <button type="submit">Sign out</button>
-        </form>
+        <form method="post" action="/admin/logout" class="admin-signout"><button type="submit">Sign out</button></form>
     </header>
     <main class="admin-content-shell">{% block content %}{% endblock %}</main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
