@@ -1,0 +1,133 @@
+/* Leaf Admin — compact navigation refinement */
+.admin-compact-header {
+    gap: 14px;
+    padding-inline: 14px;
+}
+
+.admin-compact-header .admin-sidebar-brand {
+    min-width: 185px;
+}
+
+.admin-top-nav {
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+}
+
+.admin-top-nav > a,
+.admin-top-nav > .dropdown > a {
+    white-space: nowrap;
+    padding: 9px 10px;
+}
+
+.admin-top-nav .dropdown-menu {
+    min-width: 230px;
+    padding: 8px;
+    border: 1px solid rgba(255,255,255,.78);
+    border-radius: 15px;
+    background: rgba(247,252,255,.96);
+    box-shadow: 0 18px 46px rgba(3,105,161,.16);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+.admin-top-nav .dropdown-header {
+    padding: 8px 10px 5px;
+    color: #64839a;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.admin-top-nav .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 11px;
+    border-radius: 10px;
+    color: #315d78;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-top-nav .dropdown-item:hover,
+.admin-top-nav .dropdown-item:focus {
+    color: #075985;
+    background: #e0f5ff;
+}
+
+.admin-top-nav .dropdown-item.disabled {
+    opacity: .58;
+}
+
+.admin-top-nav .admin-storefront-link {
+    padding-inline: 12px;
+    border: 1px solid rgba(2,132,199,.18);
+    background: rgba(224,247,255,.58);
+}
+
+.admin-signout {
+    flex: 0 0 auto;
+}
+
+.admin-signout button {
+    min-width: 82px;
+    white-space: nowrap;
+}
+
+@media (max-width: 1180px) {
+    .admin-compact-header .admin-sidebar-brand {
+        min-width: auto;
+    }
+    .admin-compact-header .admin-sidebar-brand small {
+        display: none;
+    }
+    .admin-top-nav > a,
+    .admin-top-nav > .dropdown > a {
+        padding-inline: 8px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 900px) {
+    .admin-nav-toggle {
+        display: block;
+    }
+    .admin-top-nav {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        padding: 10px;
+        border: 1px solid rgba(255,255,255,.78);
+        border-radius: 16px;
+        background: rgba(247,252,255,.97);
+        box-shadow: 0 18px 46px rgba(3,105,161,.14);
+        backdrop-filter: blur(18px) saturate(150%);
+    }
+    .admin-top-nav.is-open {
+        display: flex;
+    }
+    .admin-top-nav > a,
+    .admin-top-nav > .dropdown > a {
+        width: 100%;
+        padding: 11px 12px;
+    }
+    .admin-top-nav .dropdown-menu {
+        position: static !important;
+        transform: none !important;
+        width: 100%;
+        margin-top: 4px;
+        box-shadow: none;
+    }
+    .admin-signout {
+        display: none;
+    }
+}
