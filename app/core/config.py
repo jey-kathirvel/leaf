@@ -58,6 +58,14 @@ class Settings:
     UPI_VPA: str = os.getenv("UPI_VPA", "").strip()
     UPI_PAYEE_NAME: str = os.getenv("UPI_PAYEE_NAME", "Leaf Organic Store").strip()
 
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "").strip()
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "").strip()
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", SMTP_USERNAME).strip()
+    SMTP_USE_TLS: bool = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
+    PASSWORD_RESET_MINUTES: int = int(os.getenv("PASSWORD_RESET_MINUTES", "30"))
+
 
 @lru_cache
 def get_settings() -> Settings:
