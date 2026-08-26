@@ -1,4 +1,4 @@
-from app.models.admin import AdminUser
+from app.models.admin import AdminUser, StoreSettings
 from app.models.commerce import (
     Address,
     AddressType,
@@ -25,6 +25,7 @@ __all__ = [
     "Address",
     "AddressType",
     "AdminUser",
+    "StoreSettings",
     "Brand",
     "Cart",
     "CartItem",
