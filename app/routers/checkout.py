@@ -4,9 +4,11 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.db.deps import get_db
+from app.models import Address, AddressType, Customer
 from app.services.checkout_service import (
     CartError,
     add_item,
@@ -58,6 +60,92 @@ def session_cart(request: Request, db: Session, create: bool = False):
     return cart
 
 
+def logged_in_customer(request: Request, db: Session) -> Customer | None:
+    customer_id = request.session.get("customer_id")
+    if not customer_id:
+        return None
+    return db.scalar(
+        select(Customer).where(
+            Customer.id == int(customer_id),
+            Customer.is_active.is_(True),
+        )
+    )
+
+
+def customer_default_address(db: Session, customer: Customer | None) -> Address | None:
+    if not customer:
+        return None
+    return db.scalar(
+        select(Address)
+        .where(
+            Address.customer_id == customer.id,
+            Address.address_type == AddressType.SHIPPING,
+            Address.is_default.is_(True),
+        )
+        .order_by(Address.updated_at.desc(), Address.id.desc())
+    )
+
+
+def checkout_prefill(customer: Customer | None, address: Address | None) -> dict[str, str]:
+    form: dict[str, str] = {}
+    if customer:
+        form.update(
+            {
+                "full_name": f"{customer.first_name} {customer.last_name or ''}".strip(),
+                "email": customer.email,
+                "mobile": customer.mobile or "",
+            }
+        )
+    if address:
+        form.update(
+            {
+                "full_name": address.full_name,
+                "mobile": address.mobile,
+                "address_line1": address.address_line1,
+                "address_line2": address.address_line2 or "",
+                "landmark": address.landmark or "",
+                "city": address.city,
+                "state": address.state,
+                "pincode": address.pincode,
+            }
+        )
+    return form
+
+
+def stage_default_address(db: Session, customer: Customer, form: dict[str, str]) -> None:
+    current = customer_default_address(db, customer)
+    db.execute(
+        update(Address)
+        .where(Address.customer_id == customer.id, Address.is_default.is_(True))
+        .values(is_default=False)
+    )
+    values = {
+        "full_name": form["full_name"].strip(),
+        "mobile": form["mobile"].strip(),
+        "address_line1": form["address_line1"].strip(),
+        "address_line2": form.get("address_line2", "").strip() or None,
+        "landmark": form.get("landmark", "").strip() or None,
+        "city": form["city"].strip(),
+        "state": form["state"].strip(),
+        "country": "India",
+        "pincode": form["pincode"].strip(),
+    }
+    if current:
+        for key, value in values.items():
+            setattr(current, key, value)
+        current.is_default = True
+    else:
+        db.add(
+            Address(
+                customer_id=customer.id,
+                address_type=AddressType.SHIPPING,
+                is_default=True,
+                **values,
+            )
+        )
+    db.flush()
+
+
 @router.get("/cart", response_class=HTMLResponse)
 def cart_page(request: Request, db: Session = Depends(get_db)):
     cart = session_cart(request, db)
@@ -104,15 +192,10 @@ def cart_remove(item_id: int, request: Request, db: Session = Depends(get_db)):
 
 
 @router.post("/checkout/coupon")
-def checkout_apply_coupon(
-    request: Request,
-    coupon_code: str = Form(...),
-    db: Session = Depends(get_db),
-):
+def checkout_apply_coupon(request: Request, coupon_code: str = Form(...), db: Session = Depends(get_db)):
     cart = session_cart(request, db)
     if not cart or not cart.items:
         return RedirectResponse("/cart", status_code=303)
-
     code = coupon_code.strip().upper()
     subtotal = cart_totals(cart, db=db)["subtotal"]
     try:
@@ -123,7 +206,6 @@ def checkout_apply_coupon(
     except ValueError as exc:
         request.session.pop("coupon_code", None)
         request.session["coupon_error"] = str(exc)
-
     redirect_to = request.headers.get("referer") or "/checkout"
     if not redirect_to.endswith("/checkout") and not redirect_to.endswith("/cart"):
         redirect_to = "/checkout"
@@ -146,6 +228,9 @@ def checkout_page(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse("/cart", status_code=303)
     coupon_error = request.session.pop("coupon_error", None)
     coupon_message = request.session.pop("coupon_message", None)
+    customer = logged_in_customer(request, db)
+    default_address = customer_default_address(db, customer)
+    form = checkout_prefill(customer, default_address)
     return templates.TemplateResponse(
         request,
         "store/checkout.html",
@@ -154,7 +239,9 @@ def checkout_page(request: Request, db: Session = Depends(get_db)):
             cart,
             db=db,
             error=None,
-            form={},
+            form=form,
+            customer=customer,
+            default_address=default_address,
             coupon_error=coupon_error,
             coupon_message=coupon_message,
         ),
@@ -175,12 +262,28 @@ def checkout_submit(
     pincode: str = Form(...),
     notes: str = Form(""),
     payment_method: str = Form("cash_on_delivery"),
+    save_as_default: str = Form(""),
     db: Session = Depends(get_db),
 ):
     cart = session_cart(request, db)
     if not cart or not cart.items:
         return RedirectResponse("/cart", status_code=303)
-    form = {"full_name": full_name, "email": email, "mobile": mobile, "address_line1": address_line1, "address_line2": address_line2, "landmark": landmark, "city": city, "state": state, "pincode": pincode, "notes": notes}
+    customer = logged_in_customer(request, db)
+    default_address = customer_default_address(db, customer)
+    form = {
+        "full_name": full_name,
+        "email": email,
+        "mobile": mobile,
+        "address_line1": address_line1,
+        "address_line2": address_line2,
+        "landmark": landmark,
+        "city": city,
+        "state": state,
+        "pincode": pincode,
+        "notes": notes,
+        "payment_method": payment_method,
+        "save_as_default": save_as_default,
+    }
     error = None
     coupon_code = applied_coupon_code(request)
     if len(full_name.strip()) < 2:
@@ -208,6 +311,12 @@ def checkout_submit(
     if not error:
         try:
             form["mobile"] = re.sub(r"\D", "", mobile)
+            if (
+                customer
+                and save_as_default == "1"
+                and email.strip().lower() == customer.email.strip().lower()
+            ):
+                stage_default_address(db, customer, form)
             order = place_order(db, cart, form, payment_method, coupon_code=coupon_code)
             request.session.pop("cart_token", None)
             request.session.pop("coupon_code", None)
@@ -221,7 +330,15 @@ def checkout_submit(
     return templates.TemplateResponse(
         request,
         "store/checkout.html",
-        context(request, cart, db=db, error=error, form=form),
+        context(
+            request,
+            cart,
+            db=db,
+            error=error,
+            form=form,
+            customer=customer,
+            default_address=default_address,
+        ),
         status_code=422,
     )
 
@@ -231,7 +348,6 @@ def order_confirmation(order_number: str, request: Request, db: Session = Depend
     if request.session.get("last_order_number") != order_number:
         return RedirectResponse("/", status_code=303)
     from app.models import Order
-    from sqlalchemy import select
     from sqlalchemy.orm import selectinload
     order = db.scalar(select(Order).options(selectinload(Order.items), selectinload(Order.shipping_address)).where(Order.order_number == order_number))
     if not order:
