@@ -1,0 +1,107 @@
+/* Leaf account saved-address experience */
+.account-default-address {
+    margin-top: 24px;
+}
+.account-default-address .section-heading,
+.checkout-card-title,
+.saved-address-head,
+.saved-address-actions,
+.address-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+.account-default-address p,
+.saved-address-card p {
+    margin: 10px 0 8px;
+    color: #5d7f98;
+    line-height: 1.65;
+}
+.address-page-content {
+    min-width: 0;
+}
+.address-editor {
+    margin-bottom: 28px;
+}
+.address-default-check,
+.checkout-save-address {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 15px;
+    border: 1px solid rgba(14, 139, 196, .18);
+    border-radius: 14px;
+    background: rgba(224, 246, 255, .55);
+    color: #164e6e;
+    font-weight: 600;
+}
+.address-default-check input,
+.checkout-save-address input {
+    width: 18px !important;
+    height: 18px;
+    margin: 0;
+    accent-color: #0784bd;
+}
+.address-form-actions {
+    justify-content: flex-start;
+    margin-top: 18px;
+}
+.saved-address-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+.saved-address-card {
+    padding: 22px;
+    border: 1px solid rgba(14, 139, 196, .15);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, .67);
+    box-shadow: 0 16px 40px rgba(8, 91, 130, .08);
+    backdrop-filter: blur(16px);
+}
+.saved-address-card.is-default {
+    border-color: rgba(6, 148, 208, .34);
+    box-shadow: 0 18px 46px rgba(8, 127, 181, .12);
+}
+.address-default-badge {
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(14, 165, 233, .12);
+    color: #036b99;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+.saved-address-actions {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+.saved-address-actions form {
+    margin: 0;
+}
+.address-delete {
+    color: #b13a3a;
+}
+.checkout-prefill-note strong {
+    margin-right: 4px;
+}
+.checkout-card-title h2 {
+    margin: 0;
+}
+.catalog-empty.compact {
+    min-height: 0;
+    padding: 22px 0 4px;
+}
+
+@media (max-width: 820px) {
+    .saved-address-grid {
+        grid-template-columns: 1fr;
+    }
+    .checkout-card-title {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
