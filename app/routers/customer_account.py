@@ -12,6 +12,12 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.security import generate_csrf_token, hash_password, verify_password
 from app.db.deps import get_db
 from app.models import Customer, Order
+from app.services.password_reset_service import (
+    create_reset_token,
+    get_valid_reset_token,
+    mark_token_used,
+    send_reset_email,
+)
 
 
 router = APIRouter(tags=["Customer Account"])
@@ -35,12 +41,16 @@ def login_redirect(request: Request) -> RedirectResponse:
 
 
 @router.get("/login", response_class=HTMLResponse)
-def login_page(request: Request, error: str = "", db: Session = Depends(get_db)):
+def login_page(request: Request, error: str = "", message: str = "", db: Session = Depends(get_db)):
     if current_customer(request, db):
         return RedirectResponse("/account", status_code=303)
     token = generate_csrf_token()
     request.session["customer_login_csrf"] = token
-    return templates.TemplateResponse(request, "store/account/login.html", page_context(request, csrf_token=token, error=error))
+    return templates.TemplateResponse(
+        request,
+        "store/account/login.html",
+        page_context(request, csrf_token=token, error=error, message=message),
+    )
 
 
 @router.post("/login")
@@ -58,6 +68,124 @@ def login_submit(request: Request, email: str = Form(...), password: str = Form(
     if not next_url.startswith("/") or next_url.startswith("//"):
         next_url = "/account"
     return RedirectResponse(next_url, status_code=303)
+
+
+@router.get("/forgot-password", response_class=HTMLResponse)
+def forgot_password_page(request: Request, message: str = "", error: str = "", db: Session = Depends(get_db)):
+    if current_customer(request, db):
+        return RedirectResponse("/account", status_code=303)
+    token = generate_csrf_token()
+    request.session["customer_forgot_csrf"] = token
+    return templates.TemplateResponse(
+        request,
+        "store/account/forgot_password.html",
+        page_context(request, csrf_token=token, message=message, error=error),
+    )
+
+
+@router.post("/forgot-password")
+def forgot_password_submit(
+    request: Request,
+    email: str = Form(...),
+    csrf_token: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    expected = request.session.pop("customer_forgot_csrf", None)
+    if not expected or csrf_token != expected:
+        return RedirectResponse(
+            "/forgot-password?error=" + quote("Invalid or expired password reset request."),
+            status_code=303,
+        )
+
+    clean_email = email.strip().lower()
+    customer = db.scalar(
+        select(Customer).where(
+            func.lower(Customer.email) == clean_email,
+            Customer.is_active.is_(True),
+        )
+    )
+    if customer:
+        try:
+            raw_token = create_reset_token(db, customer)
+            send_reset_email(customer, raw_token)
+        except Exception:
+            # Keep the public response identical so account existence and
+            # mail-provider failures are not exposed to anonymous users.
+            pass
+
+    message = "If a Leaf account exists for that email, a password reset link has been sent."
+    return RedirectResponse("/forgot-password?message=" + quote(message), status_code=303)
+
+
+@router.get("/reset-password", response_class=HTMLResponse)
+def reset_password_page(
+    request: Request,
+    token: str = "",
+    error: str = "",
+    db: Session = Depends(get_db),
+):
+    reset_record = get_valid_reset_token(db, token)
+    if not reset_record:
+        return RedirectResponse(
+            "/forgot-password?error=" + quote("This password reset link is invalid or has expired."),
+            status_code=303,
+        )
+    csrf = generate_csrf_token()
+    request.session["customer_reset_csrf"] = csrf
+    return templates.TemplateResponse(
+        request,
+        "store/account/reset_password.html",
+        page_context(request, csrf_token=csrf, reset_token=token, error=error),
+    )
+
+
+@router.post("/reset-password")
+def reset_password_submit(
+    request: Request,
+    token: str = Form(...),
+    password: str = Form(...),
+    password_confirm: str = Form(...),
+    csrf_token: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    expected = request.session.pop("customer_reset_csrf", None)
+    if not expected or csrf_token != expected:
+        return RedirectResponse(
+            "/forgot-password?error=" + quote("Invalid or expired password reset request."),
+            status_code=303,
+        )
+
+    reset_record = get_valid_reset_token(db, token)
+    if not reset_record:
+        return RedirectResponse(
+            "/forgot-password?error=" + quote("This password reset link is invalid or has expired."),
+            status_code=303,
+        )
+    if password != password_confirm:
+        return RedirectResponse(
+            "/reset-password?token=" + quote(token) + "&error=" + quote("Passwords do not match."),
+            status_code=303,
+        )
+    if len(password) < 10:
+        return RedirectResponse(
+            "/reset-password?token=" + quote(token) + "&error=" + quote("Password must contain at least 10 characters."),
+            status_code=303,
+        )
+
+    customer = db.get(Customer, reset_record.customer_id)
+    if not customer or not customer.is_active:
+        return RedirectResponse(
+            "/forgot-password?error=" + quote("This password reset link is no longer valid."),
+            status_code=303,
+        )
+
+    customer.password_hash = hash_password(password)
+    mark_token_used(db, reset_record)
+    request.session.pop("customer_id", None)
+    return RedirectResponse(
+        "/login?message=" + quote("Password updated successfully. You can sign in with your new password."),
+        status_code=303,
+    )
 
 
 @router.get("/register", response_class=HTMLResponse)
