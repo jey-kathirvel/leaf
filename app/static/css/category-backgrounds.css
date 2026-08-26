@@ -1,0 +1,55 @@
+/* Homepage department cards — subtle product image backgrounds */
+.organic-collection-link {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.organic-collection-link.has-category-image::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background-image: var(--category-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .13;
+    transform: scale(1.01);
+    transition: opacity .35s ease, transform .35s ease;
+}
+
+.organic-collection-link.has-category-image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+        118deg,
+        rgba(240, 250, 255, .92) 0%,
+        rgba(226, 245, 253, .82) 58%,
+        rgba(218, 241, 251, .72) 100%
+    );
+}
+
+.organic-collection-link.has-category-image:hover::before {
+    opacity: .20;
+    transform: scale(1.05);
+}
+
+.organic-collection-link > * {
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 760px) {
+    .organic-collection-link.has-category-image::before {
+        opacity: .11;
+        background-position: center;
+    }
+
+    .organic-collection-link.has-category-image:hover::before {
+        opacity: .15;
+        transform: scale(1.025);
+    }
+}
