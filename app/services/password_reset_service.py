@@ -74,8 +74,9 @@ def send_reset_email(customer: Customer, raw_token: str) -> bool:
         "Leaf Organic Store"
     )
 
-    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15) as smtp:
-        if settings.SMTP_USE_TLS:
+    smtp_class = smtplib.SMTP_SSL if settings.SMTP_USE_SSL else smtplib.SMTP
+    with smtp_class(settings.SMTP_HOST, settings.SMTP_PORT, timeout=15) as smtp:
+        if not settings.SMTP_USE_SSL and settings.SMTP_USE_TLS:
             smtp.starttls()
         if settings.SMTP_USERNAME:
             smtp.login(settings.SMTP_USERNAME, settings.SMTP_PASSWORD)
