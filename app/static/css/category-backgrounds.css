@@ -1,8 +1,10 @@
-/* Homepage department cards — subtle product image backgrounds */
+/* Homepage department cards — visible low-opacity product backgrounds */
 .organic-collection-link {
     position: relative;
     overflow: hidden;
     isolation: isolate;
+    border-radius: 24px;
+    background: linear-gradient(145deg, rgba(239,249,255,.84), rgba(222,243,252,.72));
 }
 
 .organic-collection-link.has-category-image::before {
@@ -14,9 +16,10 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: .13;
-    transform: scale(1.01);
-    transition: opacity .35s ease, transform .35s ease;
+    opacity: .30;
+    filter: saturate(.92) contrast(1.04);
+    transform: scale(1.015);
+    transition: opacity .35s ease, transform .35s ease, filter .35s ease;
 }
 
 .organic-collection-link.has-category-image::after {
@@ -25,31 +28,42 @@
     inset: 0;
     z-index: -1;
     background: linear-gradient(
-        118deg,
-        rgba(240, 250, 255, .92) 0%,
-        rgba(226, 245, 253, .82) 58%,
-        rgba(218, 241, 251, .72) 100%
+        100deg,
+        rgba(239, 250, 255, .82) 0%,
+        rgba(232, 247, 253, .64) 48%,
+        rgba(218, 241, 251, .38) 100%
     );
 }
 
 .organic-collection-link.has-category-image:hover::before {
-    opacity: .20;
-    transform: scale(1.05);
+    opacity: .40;
+    filter: saturate(1) contrast(1.08);
+    transform: scale(1.055);
 }
 
 .organic-collection-link > * {
     position: relative;
     z-index: 1;
+    text-shadow: 0 1px 0 rgba(255,255,255,.58);
 }
 
 @media (max-width: 760px) {
     .organic-collection-link.has-category-image::before {
-        opacity: .11;
+        opacity: .26;
         background-position: center;
     }
 
+    .organic-collection-link.has-category-image::after {
+        background: linear-gradient(
+            105deg,
+            rgba(239,250,255,.84) 0%,
+            rgba(226,245,253,.62) 62%,
+            rgba(218,241,251,.42) 100%
+        );
+    }
+
     .organic-collection-link.has-category-image:hover::before {
-        opacity: .15;
+        opacity: .32;
         transform: scale(1.025);
     }
 }
