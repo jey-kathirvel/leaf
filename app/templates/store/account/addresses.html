@@ -1,0 +1,32 @@
+{% extends "layouts/store_base.html" %}
+{% block title %}My Addresses | Leaf{% endblock %}
+{% block content %}
+<section class="catalogue-hero compact-hero"><div class="container"><span class="eyebrow"><span class="eyebrow-dot"></span> My account</span><h1>Delivery addresses</h1><p>Save a default address for faster checkout.</p></div></section>
+<section class="section"><div class="container account-layout">
+<aside class="account-sidebar"><strong>{{ customer.first_name }} {{ customer.last_name or '' }}</strong><span>{{ customer.email }}</span><nav><a href="/account">Overview</a><a href="/account/orders">My orders</a><a class="active" href="/account/addresses">Addresses</a></nav><form method="post" action="/account/logout"><button class="text-button">Sign out</button></form></aside>
+<div class="address-page-content">
+{% if message %}<div class="store-alert success">{{ message }}</div>{% endif %}
+{% if error %}<div class="store-alert error">{{ error }}</div>{% endif %}
+<div class="checkout-card address-editor"><h2>{{ 'Edit address' if edit_address else 'Add address' }}</h2>
+<form method="post" action="/account/addresses/save" class="account-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+{% if edit_address %}<input type="hidden" name="address_id" value="{{ edit_address.id }}">{% endif %}
+<div class="form-grid">
+<label class="wide">Full name<input name="full_name" required minlength="2" value="{{ edit_address.full_name if edit_address else (customer.first_name ~ ' ' ~ (customer.last_name or ''))|trim }}" autocomplete="name"></label>
+<label>Mobile number<input name="mobile" required inputmode="numeric" maxlength="10" value="{{ edit_address.mobile if edit_address else (customer.mobile or '') }}" autocomplete="tel"></label>
+<label class="wide">Address line 1<input name="address_line1" required value="{{ edit_address.address_line1 if edit_address else '' }}" autocomplete="address-line1"></label>
+<label class="wide">Address line 2 <small>(optional)</small><input name="address_line2" value="{{ edit_address.address_line2 or '' if edit_address else '' }}" autocomplete="address-line2"></label>
+<label>Landmark <small>(optional)</small><input name="landmark" value="{{ edit_address.landmark or '' if edit_address else '' }}"></label>
+<label>City<input name="city" required value="{{ edit_address.city if edit_address else '' }}" autocomplete="address-level2"></label>
+<label>State<input name="state" required value="{{ edit_address.state if edit_address else '' }}" autocomplete="address-level1"></label>
+<label>Pincode<input name="pincode" required inputmode="numeric" maxlength="6" value="{{ edit_address.pincode if edit_address else '' }}" autocomplete="postal-code"></label>
+</div>
+<label class="address-default-check"><input type="checkbox" name="set_default" value="1" {% if not addresses or (edit_address and edit_address.is_default) %}checked{% endif %}> <span>Set as my default delivery address</span></label>
+<div class="address-form-actions"><button type="submit" class="button button-primary">{{ 'Save changes' if edit_address else 'Save address' }}</button>{% if edit_address %}<a class="button button-secondary" href="/account/addresses">Cancel</a>{% endif %}</div>
+</form></div>
+<div class="section-heading account-heading"><h2>Saved addresses</h2></div>
+<div class="saved-address-grid">
+{% for address in addresses %}<article class="saved-address-card {% if address.is_default %}is-default{% endif %}"><div class="saved-address-head"><strong>{{ address.full_name }}</strong>{% if address.is_default %}<span class="address-default-badge">Default</span>{% endif %}</div><p>{{ address.address_line1 }}{% if address.address_line2 %}, {{ address.address_line2 }}{% endif %}{% if address.landmark %}<br>{{ address.landmark }}{% endif %}<br>{{ address.city }}, {{ address.state }} - {{ address.pincode }}<br>{{ address.country }}</p><span>{{ address.mobile }}</span><div class="saved-address-actions"><a href="/account/addresses?edit={{ address.id }}" class="button button-secondary">Edit</a>{% if not address.is_default %}<form method="post" action="/account/addresses/{{ address.id }}/default"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="button button-secondary" type="submit">Set default</button></form>{% endif %}<form method="post" action="/account/addresses/{{ address.id }}/delete" onsubmit="return confirm('Remove this saved address?');"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="text-button address-delete" type="submit">Delete</button></form></div></article>{% else %}<div class="catalog-empty"><strong>No saved addresses yet.</strong><span>Add one above to prefill checkout automatically.</span></div>{% endfor %}
+</div>
+</div></div></section>
+{% endblock %}
