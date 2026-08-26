@@ -21,7 +21,7 @@ from app.models import (
     Product,
 )
 from app.services.coupon_service import compute_discount_amount, find_coupon_campaign
-
+from app.services.store_settings_service import effective_tax_rate, get_store_settings
 
 MONEY = Decimal("0.01")
 
@@ -120,21 +120,18 @@ def remove_item(db: Session, cart: Cart, item_id: int) -> Cart:
     return load_cart(db, cart.session_token)
 
 
+def _line_tax(line_total: Decimal, rate: Decimal, prices_include_tax: bool) -> Decimal:
+    if rate <= 0:
+        return Decimal("0.00")
+    if prices_include_tax:
+        return money(line_total * rate / (Decimal("100") + rate))
+    return money(line_total * rate / Decimal("100"))
+
+
 def cart_totals(cart: Cart | None, coupon_code: str | None = None, db: Session | None = None) -> dict[str, Decimal | int | str | None]:
     items = cart.items if cart else []
     subtotal = money(sum((item.unit_price * item.quantity for item in items), Decimal("0")))
-    tax = money(
-        sum(
-            (
-                item.unit_price * item.quantity * item.product.tax_percentage
-                / (Decimal("100") + item.product.tax_percentage)
-                if item.product.tax_percentage
-                else Decimal("0")
-                for item in items
-            ),
-            Decimal("0"),
-        )
-    )
+
     discount = Decimal("0.00")
     applied_code: str | None = None
     if coupon_code and db is not None and subtotal > Decimal("0"):
@@ -144,15 +141,47 @@ def cart_totals(cart: Cart | None, coupon_code: str | None = None, db: Session |
             if discount > Decimal("0"):
                 applied_code = campaign.coupon_code
 
-    grand_total = money(max(subtotal - discount, Decimal("0")))
+    net_subtotal = money(max(subtotal - discount, Decimal("0")))
+    settings = get_store_settings(db) if db is not None else None
+
+    if settings is not None and settings.tax_enabled:
+        raw_tax = sum(
+            (
+                _line_tax(
+                    money(item.unit_price * item.quantity),
+                    effective_tax_rate(settings, item.product.tax_percentage),
+                    settings.prices_include_tax,
+                )
+                for item in items
+            ),
+            Decimal("0"),
+        )
+        # Apply coupon discount proportionally to the taxable value.
+        tax_factor = (net_subtotal / subtotal) if subtotal > 0 else Decimal("0")
+        tax = money(raw_tax * tax_factor)
+    else:
+        tax = Decimal("0.00")
+
+    shipping = Decimal("0.00")
+    if settings is not None and settings.shipping_enabled and net_subtotal > 0:
+        threshold = settings.free_shipping_threshold or Decimal("0.00")
+        if threshold <= 0 or net_subtotal < threshold:
+            shipping = money(settings.flat_shipping_amount or Decimal("0.00"))
+
+    tax_to_add = tax if settings is not None and settings.tax_enabled and not settings.prices_include_tax else Decimal("0.00")
+    grand_total = money(net_subtotal + shipping + tax_to_add)
+
     return {
         "subtotal": subtotal,
         "tax": tax,
-        "shipping": Decimal("0.00"),
+        "shipping": shipping,
         "discount": discount,
         "grand_total": grand_total,
         "count": sum(item.quantity for item in items),
         "coupon_code": applied_code,
+        "delivery_eta_min_days": settings.delivery_eta_min_days if settings else None,
+        "delivery_eta_max_days": settings.delivery_eta_max_days if settings else None,
+        "prices_include_tax": settings.prices_include_tax if settings else True,
     }
 
 
@@ -160,13 +189,7 @@ def cart_allows_cod(cart: Cart | None) -> bool:
     return bool(cart and cart.items) and all(item.product.allow_cod for item in cart.items)
 
 
-def place_order(
-    db: Session,
-    cart: Cart,
-    customer_data: dict[str, str],
-    payment_method: str,
-    coupon_code: str | None = None,
-) -> Order:
+def place_order(db: Session, cart: Cart, customer_data: dict[str, str], payment_method: str, coupon_code: str | None = None) -> Order:
     if not cart.items:
         raise CartError("Your cart is empty.")
     if payment_method not in {"cash_on_delivery", "upi"}:
@@ -220,6 +243,7 @@ def place_order(
     db.flush()
 
     totals = cart_totals(cart, coupon_code=coupon_code, db=db)
+    settings = get_store_settings(db)
     order = Order(
         order_number=f"LF{datetime.now(timezone.utc):%y%m%d}{token_urlsafe(5).replace('-', '').replace('_', '').upper()[:7]}",
         customer_id=customer.id,
@@ -244,11 +268,10 @@ def place_order(
     for item in cart.items:
         product = locked_products[item.product_id]
         line_total = money(product.price * item.quantity)
-        line_tax = money(
-            line_total * product.tax_percentage / (Decimal("100") + product.tax_percentage)
-            if product.tax_percentage else Decimal("0")
-        )
-        db.add(OrderItem(order_id=order.id, product_id=product.id, product_name=product.name, sku=product.sku, quantity=item.quantity, unit_price=product.price, tax_amount=line_tax, total_amount=line_total))
+        rate = effective_tax_rate(settings, product.tax_percentage)
+        line_tax = _line_tax(line_total, rate, settings.prices_include_tax) if settings.tax_enabled else Decimal("0.00")
+        total_amount = line_total if settings.prices_include_tax else money(line_total + line_tax)
+        db.add(OrderItem(order_id=order.id, product_id=product.id, product_name=product.name, sku=product.sku, quantity=item.quantity, unit_price=product.price, tax_amount=line_tax, total_amount=total_amount))
         if product.track_inventory:
             product.inventory.quantity -= item.quantity
 
