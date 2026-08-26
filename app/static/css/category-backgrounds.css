@@ -1,4 +1,4 @@
-/* Homepage department cards — visible low-opacity product backgrounds */
+/* Homepage department cards — visible product image backgrounds */
 .organic-collection-link {
     position: relative;
     overflow: hidden;
@@ -16,8 +16,8 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: .30;
-    filter: saturate(.92) contrast(1.04);
+    opacity: .50;
+    filter: saturate(.96) contrast(1.05);
     transform: scale(1.015);
     transition: opacity .35s ease, transform .35s ease, filter .35s ease;
 }
@@ -29,14 +29,14 @@
     z-index: -1;
     background: linear-gradient(
         100deg,
-        rgba(239, 250, 255, .82) 0%,
-        rgba(232, 247, 253, .64) 48%,
-        rgba(218, 241, 251, .38) 100%
+        rgba(239, 250, 255, .72) 0%,
+        rgba(232, 247, 253, .52) 48%,
+        rgba(218, 241, 251, .28) 100%
     );
 }
 
 .organic-collection-link.has-category-image:hover::before {
-    opacity: .40;
+    opacity: .60;
     filter: saturate(1) contrast(1.08);
     transform: scale(1.055);
 }
@@ -44,26 +44,26 @@
 .organic-collection-link > * {
     position: relative;
     z-index: 1;
-    text-shadow: 0 1px 0 rgba(255,255,255,.58);
+    text-shadow: 0 1px 1px rgba(255,255,255,.68);
 }
 
 @media (max-width: 760px) {
     .organic-collection-link.has-category-image::before {
-        opacity: .26;
+        opacity: .50;
         background-position: center;
     }
 
     .organic-collection-link.has-category-image::after {
         background: linear-gradient(
             105deg,
-            rgba(239,250,255,.84) 0%,
-            rgba(226,245,253,.62) 62%,
-            rgba(218,241,251,.42) 100%
+            rgba(239,250,255,.74) 0%,
+            rgba(226,245,253,.54) 62%,
+            rgba(218,241,251,.30) 100%
         );
     }
 
     .organic-collection-link.has-category-image:hover::before {
-        opacity: .32;
+        opacity: .58;
         transform: scale(1.025);
     }
 }
